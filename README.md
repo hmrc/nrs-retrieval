@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hmrc/nrs-retrieval.svg)](https://travis-ci.org/hmrc/nrs-retrieval) [ ![Download](https://api.bintray.com/packages/hmrc/releases/nrs-retrieval/images/download.svg) ](https://bintray.com/hmrc/releases/nrs-retrieval/_latestVersion)
 
-This is a placeholder README.md for a new repository
+This is an initial implementation to confirm connectivity between the deployed nbackend and frontend services.
 
 ### License
 
