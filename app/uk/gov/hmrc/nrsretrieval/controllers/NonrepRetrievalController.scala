@@ -18,17 +18,21 @@ package uk.gov.hmrc.nrsretrieval.controllers
 
 import javax.inject.Singleton
 
+import com.google.inject.Inject
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import play.api.mvc._
-
-import scala.concurrent.Future
+import uk.gov.hmrc.nrsretrieval.connectors.NonrepRetrievalConnector
 
 @Singleton()
-class MicroserviceHelloWorld extends BaseController {
+class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector) extends BaseController {
 
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world : nrs retrieval"))
-	}
+  // reposnds with a 200 and whatever response we got from the connector call
+  def search() = Action.async { implicit request =>
+    nonrepRetrievalConnector.search(queryParams(request.queryString)).map(response => Ok(response.body))
+  }
+
+  private def queryParams(queryString: Map[String, Seq[String]]): Seq[(String, String)] =
+    queryString.keys.flatMap(k => queryString(k).map(v => (k, v))).toSeq
 
 }
