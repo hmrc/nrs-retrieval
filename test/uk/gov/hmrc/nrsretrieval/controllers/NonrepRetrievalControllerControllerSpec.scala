@@ -16,22 +16,32 @@
 
 package uk.gov.hmrc.nrsretrieval.controllers
 
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.test.FakeRequest
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.play.test.WithFakeApplication
+import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.nrsretrieval.connectors.NonrepRetrievalConnector
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
+import scala.concurrent.Future
 
-class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication{
+
+class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   val fakeRequest = FakeRequest("GET", "/")
 
   "GET /" should {
     "return 200" in {
-      val controller = new NonrepRetrievalController()
+      val httpResponseBody: String = "someResponse"
+      val mockHttpResponse = mock[HttpResponse]
+      when(mockHttpResponse.body).thenReturn(httpResponseBody)
+
+      val mocKConnector = mock[NonrepRetrievalConnector]
+      when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
+
+      val controller = new NonrepRetrievalController(mocKConnector)
       val result = controller.search()(fakeRequest)
       status(result) shouldBe Status.OK
     }

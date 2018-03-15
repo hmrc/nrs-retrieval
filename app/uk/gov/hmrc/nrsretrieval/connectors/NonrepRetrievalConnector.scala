@@ -49,7 +49,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
 
   protected def mode: Mode = environment.mode
 
-  val searchUrl = s"${appConfig.nonrepRetrievalUrl}/search"
+  val searchUrl = s"${appConfig.nonrepRetrievalUrl}/submission-metadata"
 
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] =
     httpGet.GET[HttpResponse](searchUrl, queryParams)
