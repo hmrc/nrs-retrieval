@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.nrsretrieval.connectors
+package uk.gov.hmrc.nrs.retrieval.connectors
 
 import com.google.inject.{AbstractModule, Guice, Injector}
 import org.mockito.Matchers.any
@@ -22,7 +22,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.Environment
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.nrsretrieval.config.{AppConfig, WSHttpT}
+import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future

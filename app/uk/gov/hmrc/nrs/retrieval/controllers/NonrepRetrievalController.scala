@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.nrsretrieval.controllers
+package uk.gov.hmrc.nrs.retrieval.controllers
 
 import javax.inject.Singleton
 
@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import play.api.mvc._
-import uk.gov.hmrc.nrsretrieval.connectors.NonrepRetrievalConnector
+import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 
 @Singleton()
 class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector) extends BaseController {

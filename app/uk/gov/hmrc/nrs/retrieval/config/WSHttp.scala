@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.nrsretrieval.connectors
+package uk.gov.hmrc.nrs.retrieval.config
 
 /*
  * Copyright 2018 HM Revenue & Customs
@@ -34,24 +34,23 @@ package uk.gov.hmrc.nrsretrieval.connectors
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.Environment
+import com.google.inject.ImplementedBy
 import play.api.Mode.Mode
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.nrsretrieval.config.{AppConfig, WSHttpT}
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.config.{AppName, RunMode}
+import uk.gov.hmrc.play.http.ws._
 
-import scala.concurrent.Future
+@ImplementedBy(classOf[WSHttp])
+trait WSHttpT extends HttpGet with WSGet
+  with HttpPut with WSPut
+  with HttpPost with WSPost
+  with HttpDelete with WSDelete
+  with HttpPatch with WSPatch
+  with AppName with RunMode
 
 @Singleton
-class NonrepRetrievalConnector @Inject()(val environment: Environment,
-                                         val httpGet: WSHttpT,
-                                         implicit val appConfig: AppConfig) {
-
-  protected def mode: Mode = environment.mode
-
-  val searchUrl = s"${appConfig.nonrepRetrievalUrl}/submission-metadata"
-
-  def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpGet.GET[HttpResponse](searchUrl, queryParams)
-
+class WSHttp @Inject() (val environment: Environment, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration) extends WSHttpT {
+  val mode: Mode = environment.mode
+  override val hooks = NoneRequired
 }
