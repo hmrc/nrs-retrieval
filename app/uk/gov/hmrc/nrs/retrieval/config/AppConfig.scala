@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.nrsretrieval.config
+package uk.gov.hmrc.nrs.retrieval.config
 
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
