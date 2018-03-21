@@ -1,3 +1,6 @@
 # microservice specific routes
 
 GET        /submission-metadata               @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.search()
+
+GET         /submission/ping                  @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.submissionPing
+GET         /retrieval/ping                   @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.retrievalPing
