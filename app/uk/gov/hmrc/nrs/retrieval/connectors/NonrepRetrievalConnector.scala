@@ -34,7 +34,7 @@ package uk.gov.hmrc.nrs.retrieval.connectors
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.Environment
+import play.api.{Environment, Logger}
 import play.api.Mode.Mode
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
@@ -55,10 +55,16 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] =
     httpGet.GET[HttpResponse](searchUrl, queryParams)
 
-  def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpGet.GET[HttpResponse](s"${appConfig.nonrepRetrievalUrl}/submission/ping")
+  def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val path = s"${appConfig.nonrepRetrievalUrl}/submission/ping"
+    Logger.info(s"Sending ping request to submission API, path=$path")
+    httpGet.GET[HttpResponse](path)
+  }
 
-  def retrievalPing()(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpGet.GET[HttpResponse](s"${appConfig.nonrepSubmissionUrl}/retrieval/ping")
+  def retrievalPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val path = s"${appConfig.nonrepRetrievalUrl}/submission/ping"
+    Logger.info(s"Sending ping request to retrieval API, path=$path")
+    httpGet.GET[HttpResponse](path)
+  }
 
 }
