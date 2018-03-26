@@ -56,13 +56,13 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
     httpGet.GET[HttpResponse](searchUrl, queryParams)
 
   def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val path = s"${appConfig.nonrepSubmissionUrl}/submission/ping"
+    val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"
     Logger.info(s"Sending ping request to submission API, path=$path")
     httpGet.GET[HttpResponse](path)
   }
 
   def retrievalPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/ping"
+    val path = s"${appConfig.nonrepRetrievalPingUrl}/retrieval/ping"
     Logger.info(s"Sending ping request to retrieval API, path=$path")
     httpGet.GET[HttpResponse](path)
   }
