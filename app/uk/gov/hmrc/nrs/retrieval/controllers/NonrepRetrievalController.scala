@@ -48,7 +48,6 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
   }
 
   private def rewriteResponse (response: HttpResponse) = {
-
     val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
 
     response.status match {
