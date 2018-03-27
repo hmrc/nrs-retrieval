@@ -22,17 +22,44 @@ import com.google.inject.Inject
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import play.api.mvc._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
+
+import scala.concurrent.Future
 
 @Singleton()
 class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector) extends BaseController {
 
-  // reposnds with a 200 and whatever response we got from the connector call
+  // responds with a 200 and whatever response we got from the connector call
   def search() = Action.async { implicit request =>
-    nonrepRetrievalConnector.search(queryParams(request.queryString)).map(response => Ok(response.body))
+    nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
   }
 
-  private def queryParams(queryString: Map[String, Seq[String]]): Seq[(String, String)] =
-    queryString.keys.flatMap(k => queryString(k).map(v => (k, v))).toSeq
+  def submitRetrievalRequest(vaultId: String, archiveId: String) = Action.async { implicit request =>
+    nonrepRetrievalConnector.submitRetrievalRequest(vaultId.toLong, archiveId.toLong).map(response => rewriteResponse(response))
+  }
+
+  def statusSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
+    nonrepRetrievalConnector.statusSubmissionBundle(vaultId.toLong, archiveId.toLong).map(response => rewriteResponse(response))
+  }
+
+  def getSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
+    nonrepRetrievalConnector.getSubmissionBundle(vaultId.toLong, archiveId.toLong).map(response => rewriteResponse(response))
+  }
+
+  private def rewriteResponse (response: HttpResponse) = {
+
+    val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
+
+    response.status match {
+      case 200 => Ok(response.body).withHeaders(headers:_*)
+      case 404 => NotFound(response.body)
+      case _ => Ok(response.body)
+    }
+
+  }
+
+  private def mapToSeq(sourceMap: Map[String, Seq[String]]): Seq[(String, String)] =
+    sourceMap.keys.flatMap(k => sourceMap(k).map(v => (k, v))).toSeq
 
 }

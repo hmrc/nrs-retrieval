@@ -37,7 +37,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.Environment
 import play.api.Mode.Mode
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
+import uk.gov.hmrc.nrs.retrieval.config.AppConfig
 import uk.gov.hmrc.nrs.retrieval.config.WSHttpT
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
@@ -45,14 +45,24 @@ import scala.concurrent.Future
 
 @Singleton
 class NonrepRetrievalConnector @Inject()(val environment: Environment,
-                                         val httpGet: WSHttpT,
+                                         val http: WSHttpT,
                                          implicit val appConfig: AppConfig) {
 
   protected def mode: Mode = environment.mode
 
-  val searchUrl = s"${appConfig.nonrepRetrievalUrl}/submission-metadata"
-
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpGet.GET[HttpResponse](searchUrl, queryParams)
+    http.GET[HttpResponse](s"${appConfig.nonrepRetrievalUrl}/submission-metadata", queryParams)
+
+  def submitRetrievalRequest(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http.doPostString(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId/retrieval-requests", "", Seq.empty)
+  }
+
+  def statusSubmissionBundle(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http.doHead(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId")
+  }
+
+  def getSubmissionBundle(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http.doGet(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId")
+  }
 
 }

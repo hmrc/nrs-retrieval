@@ -1,3 +1,6 @@
 # microservice specific routes
 
-GET        /submission-metadata               @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.search()
+GET        /submission-metadata                                          @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.search()
+POST       /submission-bundles/:vaultId/:archiveId/retrieval-requests    @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.submitRetrievalRequest(vaultId, archiveId)
+HEAD       /submission-bundles/:vaultId/:archiveId                       @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.statusSubmissionBundle(vaultId, archiveId)
+GET        /submission-bundles/:vaultId/:archiveId                       @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.getSubmissionBundle(vaultId, archiveId)
