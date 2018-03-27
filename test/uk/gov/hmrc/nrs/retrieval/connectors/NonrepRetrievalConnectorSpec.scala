@@ -17,7 +17,7 @@
 package uk.gov.hmrc.nrs.retrieval.connectors
 
 import com.google.inject.{AbstractModule, Guice, Injector}
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, contains}
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.Environment
@@ -29,15 +29,48 @@ import scala.concurrent.Future
 
 class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
 
-  "Search" should {
-    "make a call to /search" in {
+  "search" should {
+    "make a call to /submission-metadata" in {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
-      when(mockWsHttp.GET[HttpResponse](any(), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       await(connector.search(Seq(("someParameter", "someValue")))).body shouldBe httpResponseBody
     }
   }
+
+  "submitRetrievalRequest" should {
+    "make a call to /submission-bundles/:vaultId/:archiveId/retrieval-requests" in {
+      val httpResponseBody: String = "someResponse"
+      when(mockHttpResponse.body).thenReturn(httpResponseBody)
+      when(mockHttpResponse.status).thenReturn(202)
+      when(mockWsHttp.doPostString(contains("submission-bundles"), any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
+
+      await(connector.submitRetrievalRequest(1,2)).status shouldBe 202
+    }
+  }
+
+  "statusSubmissionBundle" should {
+    "make a call to /submission-bundles/$vaultId/$archiveId" in {
+      val httpResponseBody: String = "someResponse"
+      when(mockHttpResponse.body).thenReturn(httpResponseBody)
+      when(mockHttpResponse.status).thenReturn(200)
+      when(mockWsHttp.doHead(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
+
+      await(connector.statusSubmissionBundle(1, 2)).status shouldBe 200
+    }
+  }
+
+  "getSubmissionBundle" should {
+    "make a call to /submission-bundles/$vaultId/$archiveId" in {
+      val httpResponseBody: String = "someResponse"
+      when(mockHttpResponse.body).thenReturn(httpResponseBody)
+      when(mockWsHttp.doGet(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
+
+      await(connector.getSubmissionBundle(1,2)).body shouldBe httpResponseBody
+    }
+  }
+
 
   private val mockWsHttp = mock[WSHttpT]
   private val mockEnvironemnt = mock[Environment]
