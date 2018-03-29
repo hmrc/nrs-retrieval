@@ -58,6 +58,14 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
 
   }
 
+  def submissionPing = Action.async { implicit request =>
+    nonrepRetrievalConnector.submissionPing().map(response => Ok(response.body))
+  }
+
+  def retrievalPing = Action.async { implicit request =>
+    nonrepRetrievalConnector.retrievalPing().map(response => Ok(response.body))
+  }
+
   private def mapToSeq(sourceMap: Map[String, Seq[String]]): Seq[(String, String)] =
     sourceMap.keys.flatMap(k => sourceMap(k).map(v => (k, v))).toSeq
 

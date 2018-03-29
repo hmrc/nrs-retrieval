@@ -34,7 +34,7 @@ package uk.gov.hmrc.nrs.retrieval.connectors
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.Environment
+import play.api.{Environment, Logger}
 import play.api.Mode.Mode
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.config.AppConfig
@@ -63,6 +63,18 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
 
   def getSubmissionBundle(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.doGet(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId")
+  }
+
+  def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"
+    Logger.info(s"Sending ping request to submission API, path=$path")
+    http.GET[HttpResponse](path)
+  }
+
+  def retrievalPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val path = s"${appConfig.nonrepRetrievalPingUrl}/retrieval/ping"
+    Logger.info(s"Sending ping request to retrieval API, path=$path")
+    http.GET[HttpResponse](path)
   }
 
 }

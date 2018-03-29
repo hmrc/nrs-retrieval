@@ -38,5 +38,7 @@ class AppConfig @Inject()(val runModeConfiguration: Configuration, environment: 
   lazy val reportAProblemNonJSUrl: String = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
 
   lazy val nonrepRetrievalUrl: String = loadConfig(s"awsservices.nonrepRetrieval.url")
+  lazy val nonrepRetrievalPingUrl: String = loadConfig(s"awsservices.nonrepRetrievalPing.url")
+  lazy val nonrepSubmissionPingUrl: String = loadConfig(s"awsservices.nonrepSubmissionPing.url")
 
 }
