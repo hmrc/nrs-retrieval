@@ -32,17 +32,44 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
 
   val fakeRequest = FakeRequest("GET", "/")
 
-  "GET /" should {
-    "return 200" in {
-      val httpResponseBody: String = "someResponse"
-      val mockHttpResponse = mock[HttpResponse]
-      when(mockHttpResponse.body).thenReturn(httpResponseBody)
+  val httpResponseBody: String = "someResponse"
+  val mockHttpResponse = mock[HttpResponse]
+  when(mockHttpResponse.body).thenReturn(httpResponseBody)
+  when(mockHttpResponse.status).thenReturn(Status.OK)
+  when(mockHttpResponse.allHeaders).thenReturn(Map.empty[String,Seq[String]])
 
-      val mocKConnector = mock[NonrepRetrievalConnector]
-      when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
+  val mocKConnector = mock[NonrepRetrievalConnector]
+  when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.submitRetrievalRequest(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.statusSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      val controller = new NonrepRetrievalController(mocKConnector)
+  val controller = new NonrepRetrievalController(mocKConnector)
+
+  "search" should {
+    "pass-through the search response" in {
       val result = controller.search()(fakeRequest)
+      status(result) shouldBe Status.OK
+    }
+  }
+
+  "submitRetrievalRequest" should {
+    "pass-through the search response" in {
+      val result = controller.submitRetrievalRequest("1", "2")(fakeRequest)
+      status(result) shouldBe Status.OK
+    }
+  }
+
+  "getSubmissionBundle" should {
+    "pass-through the search response" in {
+      val result = controller.getSubmissionBundle("1", "2")(fakeRequest)
+      status(result) shouldBe Status.OK
+    }
+  }
+
+  "statusSubmissionBundle" should {
+    "pass-through the search response" in {
+      val result = controller.statusSubmissionBundle("1", "2")(fakeRequest)
       status(result) shouldBe Status.OK
     }
   }

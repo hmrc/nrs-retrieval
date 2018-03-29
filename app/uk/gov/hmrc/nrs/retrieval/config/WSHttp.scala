@@ -40,6 +40,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.http.ws._
+import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[WSHttp])
 trait WSHttpT extends HttpGet with WSGet
@@ -47,6 +48,7 @@ trait WSHttpT extends HttpGet with WSGet
   with HttpPost with WSPost
   with HttpDelete with WSDelete
   with HttpPatch with WSPatch
+  with HttpHead with WSHead
   with AppName with RunMode
 
 @Singleton
