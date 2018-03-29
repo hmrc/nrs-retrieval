@@ -46,7 +46,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.status).thenReturn(202)
       when(mockWsHttp.doPostString(contains("submission-bundles"), any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.submitRetrievalRequest(1,2)).status shouldBe 202
+      await(connector.submitRetrievalRequest(testVaultId, testArchiveId)).status shouldBe 202
     }
   }
 
@@ -57,7 +57,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.status).thenReturn(200)
       when(mockWsHttp.doHead(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.statusSubmissionBundle(1, 2)).status shouldBe 200
+      await(connector.statusSubmissionBundle(testVaultId, testArchiveId)).status shouldBe 200
     }
   }
 
@@ -67,7 +67,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockWsHttp.doGet(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.getSubmissionBundle(1,2)).body shouldBe httpResponseBody
+      await(connector.getSubmissionBundle(testVaultId, testArchiveId)).body shouldBe httpResponseBody
     }
   }
 
@@ -87,6 +87,9 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       bind(classOf[AppConfig]).toInstance(mockAppConfig)
     }
   }
+
+  private val testVaultId = "1"
+  private val testArchiveId = "2"
 
   private val injector: Injector = Guice.createInjector(testModule)
   private val connector: NonrepRetrievalConnector = injector.getInstance(classOf[NonrepRetrievalConnector])

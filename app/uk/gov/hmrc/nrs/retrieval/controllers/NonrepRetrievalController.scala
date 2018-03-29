@@ -36,15 +36,15 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
   }
 
   def submitRetrievalRequest(vaultId: String, archiveId: String) = Action.async { implicit request =>
-    nonrepRetrievalConnector.submitRetrievalRequest(vaultId.toLong, archiveId.toLong).map(response => rewriteResponse(response))
+    nonrepRetrievalConnector.submitRetrievalRequest(vaultId, archiveId).map(response => rewriteResponse(response))
   }
 
   def statusSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
-    nonrepRetrievalConnector.statusSubmissionBundle(vaultId.toLong, archiveId.toLong).map(response => rewriteResponse(response))
+    nonrepRetrievalConnector.statusSubmissionBundle(vaultId, archiveId).map(response => rewriteResponse(response))
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
-    nonrepRetrievalConnector.getSubmissionBundle(vaultId.toLong, archiveId.toLong).map(response => rewriteResponse(response))
+    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map(response => rewriteResponse(response))
   }
 
   private def rewriteResponse (response: HttpResponse) = {

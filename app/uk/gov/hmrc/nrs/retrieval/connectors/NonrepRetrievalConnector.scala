@@ -53,15 +53,15 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] =
     http.GET[HttpResponse](s"${appConfig.nonrepRetrievalUrl}/submission-metadata", queryParams)
 
-  def submitRetrievalRequest(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def submitRetrievalRequest(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.doPostString(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId/retrieval-requests", "", Seq.empty)
   }
 
-  def statusSubmissionBundle(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def statusSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.doHead(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId")
   }
 
-  def getSubmissionBundle(vaultId: Long, archiveId: Long)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.doGet(s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId")
   }
 
