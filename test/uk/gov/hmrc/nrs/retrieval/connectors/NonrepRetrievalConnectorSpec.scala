@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
@@ -33,9 +34,13 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
     "make a call to /submission-metadata" in {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
+      when(mockHttpResponse.status).thenReturn(200)
+      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.search(Seq(("someParameter", "someValue")))).body shouldBe httpResponseBody
+      connector.search(Seq(("someParameter", "someValue"))).map { response =>
+        response.body shouldBe httpResponseBody
+      }
     }
   }
 
@@ -44,9 +49,12 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(202)
+      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.doPostString(contains("submission-bundles"), any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.submitRetrievalRequest(testVaultId, testArchiveId)).status shouldBe 202
+      connector.submitRetrievalRequest(testVaultId, testArchiveId).map { response =>
+        response.status shouldBe 202
+      }
     }
   }
 
@@ -55,19 +63,26 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(200)
+      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.doHead(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.statusSubmissionBundle(testVaultId, testArchiveId)).status shouldBe 200
+      connector.statusSubmissionBundle(testVaultId, testArchiveId).map { response =>
+        response.status shouldBe 200
+      }
     }
   }
 
   "getSubmissionBundle" should {
     "make a call to /submission-bundles/$vaultId/$archiveId" in {
       val httpResponseBody: String = "someResponse"
+      when(mockHttpResponse.status).thenReturn(200)
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
+      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.doGet(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
 
-      await(connector.getSubmissionBundle(testVaultId, testArchiveId)).body shouldBe httpResponseBody
+      connector.getSubmissionBundle(testVaultId, testArchiveId).map { response =>
+        response.body shouldBe httpResponseBody
+      }
     }
   }
 
