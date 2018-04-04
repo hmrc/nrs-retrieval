@@ -53,7 +53,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   protected def mode: Mode = environment.mode
 
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val path = s"${appConfig.nonrepRetrievalUrl}/submission-metadata"
+    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"
     logger.info(s"Get $path with $queryParams")
     http.GET[HttpResponse](path, queryParams).map {response =>
       logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body}")
@@ -62,7 +62,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   }
 
   def submitRetrievalRequest(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val path = s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId/retrieval-requests"
+    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId/retrieval-requests"
     logger.info(s"Post $path")
     http.doPostString(path, "", Seq.empty) map {response =>
       logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body}")
@@ -71,7 +71,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   }
 
   def statusSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val path = s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId"
+    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Head $path")
     http.doHead(path) map {response =>
       logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body.toString}")
@@ -80,7 +80,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    val path = s"${appConfig.nonrepRetrievalUrl}/submission-bundles/$vaultId/$archiveId"
+    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
     http.doGet(path) map {response =>
       logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body.toString}")
