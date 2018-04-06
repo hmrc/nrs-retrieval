@@ -22,7 +22,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
+import uk.gov.hmrc.nrs.retrieval.connectors.{MicroserviceAuthConnector, NonrepRetrievalConnector}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
@@ -43,7 +43,9 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
   when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
   when(mocKConnector.statusSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
-  val controller = new NonrepRetrievalController(mocKConnector)
+  val authConnector = mock[MicroserviceAuthConnector]
+
+  val controller = new NonrepRetrievalController(mocKConnector, authConnector)
 
   "search" should {
     "pass-through the search response" in {

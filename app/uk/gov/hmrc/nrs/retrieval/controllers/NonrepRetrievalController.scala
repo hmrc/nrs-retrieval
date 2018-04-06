@@ -17,19 +17,35 @@
 package uk.gov.hmrc.nrs.retrieval.controllers
 
 import javax.inject.Singleton
-
 import com.google.inject.Inject
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve.PAClientId
+import uk.gov.hmrc.auth.core.retrieve.Retrievals.authProviderId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
+import uk.gov.hmrc.nrs.retrieval.connectors.{MicroserviceAuthConnector, NonrepRetrievalConnector}
+
+import scala.concurrent.Future
 
 @Singleton()
-class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector) extends BaseController {
+class NonrepRetrievalController @Inject()(
+  val nonrepRetrievalConnector: NonrepRetrievalConnector,
+  val authConnector: MicroserviceAuthConnector
+) extends BaseController with AuthorisedFunctions {
+
+  val nrsRole = "nrsRole" // from config
 
   def search() = Action.async { implicit request =>
-    nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
+    authorised(Enrolment(nrsRole) and AuthProviders(PrivilegedApplication)).retrieve(authProviderId) {
+      case authProviderId: PAClientId => // TODO
+
+        nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
+
+      case _ => Future.successful(Forbidden) // Forbidden
+    }
   }
 
   def submitRetrievalRequest(vaultId: String, archiveId: String) = Action.async { implicit request =>
