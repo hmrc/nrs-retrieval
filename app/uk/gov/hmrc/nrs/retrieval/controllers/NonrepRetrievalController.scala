@@ -25,12 +25,9 @@ import play.api.mvc._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 
-import scala.concurrent.Future
-
 @Singleton()
 class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector) extends BaseController {
 
-  // responds with a 200 and whatever response we got from the connector call
   def search() = Action.async { implicit request =>
     nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
   }
@@ -49,7 +46,6 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
 
   private def rewriteResponse (response: HttpResponse) = {
     val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
-
     response.status match {
       case 200 => Ok(response.body).withHeaders(headers:_*)
       case 404 => NotFound(response.body)
@@ -69,4 +65,11 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
   private def mapToSeq(sourceMap: Map[String, Seq[String]]): Seq[(String, String)] =
     sourceMap.keys.flatMap(k => sourceMap(k).map(v => (k, v))).toSeq
 
+  implicit def headerCarrier (implicit request: Request[AnyContent]): HeaderCarrier = {
+    val xApiKey = "X-API-Key"
+    request.headers.get(xApiKey) match {
+      case Some(xApiKeyValue) => HeaderCarrier().withExtraHeaders(xApiKey -> xApiKeyValue)
+      case _ => HeaderCarrier()
+    }
+  }
 }

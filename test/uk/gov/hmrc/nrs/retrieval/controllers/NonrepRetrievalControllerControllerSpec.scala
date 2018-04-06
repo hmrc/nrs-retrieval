@@ -27,7 +27,6 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-
 class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 
   val fakeRequest = FakeRequest("GET", "/")
@@ -71,6 +70,16 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
     "pass-through the search response" in {
       val result = controller.statusSubmissionBundle("1", "2")(fakeRequest)
       status(result) shouldBe Status.OK
+    }
+  }
+
+  "headerCarrier" should {
+    "create a header carrier with an X-API-Key header in one exists in the request" in {
+      val request = fakeRequest.withHeaders("X-API-Key" -> "aValidKey")
+      controller.headerCarrier(request).headers should contain ("X-API-Key" -> "aValidKey")
+    }
+    "create an empty header carrier if no X-API-Key header exists in the request" in {
+      controller.headerCarrier(fakeRequest).headers. find(_ == ("X-API-Key" -> "aValidKey")) shouldBe empty
     }
   }
 
