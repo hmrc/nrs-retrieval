@@ -41,7 +41,7 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
-    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map(response => rewriteResponse(response))
+    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map(response => rewriteResponseBytes(response))
   }
 
   private def rewriteResponse (response: HttpResponse) = {
@@ -51,7 +51,15 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
       case 404 => NotFound(response.body)
       case _ => Ok(response.body)
     }
+  }
 
+  private def rewriteResponseBytes (response: HttpResponse) = {
+    val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
+    response.status match {
+      case 200 => Ok(response.body.getBytes).withHeaders(headers:_*)
+      case 404 => NotFound(response.body.getBytes)
+      case _ => Ok(response.body.getBytes)
+    }
   }
 
   def submissionPing = Action.async { implicit request =>

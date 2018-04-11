@@ -50,7 +50,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(202)
       when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.doPostString(contains("submission-bundles"), any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.POST[Any, Any](contains("submission-bundles"), any(), any())(any(), any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.submitRetrievalRequest(testVaultId, testArchiveId).map { response =>
         response.status shouldBe 202
@@ -64,7 +64,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(200)
       when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.doHead(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.HEAD[Any](contains("submission-bundles"))(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.statusSubmissionBundle(testVaultId, testArchiveId).map { response =>
         response.status shouldBe 200
@@ -78,7 +78,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.status).thenReturn(200)
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.doGet(contains("submission-bundles"))(any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.GET[Any](contains("submission-bundles"))(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.getSubmissionBundle(testVaultId, testArchiveId).map { response =>
         response.body shouldBe httpResponseBody

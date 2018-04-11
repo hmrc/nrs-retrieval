@@ -56,7 +56,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"
     logger.info(s"Get $path with $queryParams")
     http.GET[HttpResponse](path, queryParams).map {response =>
-      logger.info(s"$path : ${response.status} : ${response.body}")
+      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body}")
       response
     }
   }
@@ -64,8 +64,8 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def submitRetrievalRequest(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId/retrieval-requests"
     logger.info(s"Post $path")
-    http.doPostString(path, "", Seq.empty) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.body}")
+    http.POST(path, "", Seq.empty) map {response =>
+      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body}")
       response
     }
   }
@@ -73,8 +73,8 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def statusSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Head $path")
-    http.doHead(path) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.body.toString}")
+    http.HEAD(path) map {response =>
+      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body.toString}")
       response
     }
   }
@@ -82,10 +82,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
-    http.doGet(path) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.body.toString}")
-      response
-    }
+    http.GET(path)
   }
 
   def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
