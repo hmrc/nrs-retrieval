@@ -55,28 +55,19 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"
     logger.info(s"Get $path with $queryParams")
-    http.GET[HttpResponse](path, queryParams).map {response =>
-      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body}")
-      response
-    }
+    http.GET[HttpResponse](path, queryParams)
   }
 
   def submitRetrievalRequest(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId/retrieval-requests"
     logger.info(s"Post $path")
-    http.POST(path, "", Seq.empty) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body}")
-      response
-    }
+    http.POST(path, "", Seq.empty)
   }
 
   def statusSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Head $path")
-    http.HEAD(path) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body.toString}")
-      response
-    }
+    http.HEAD(path)
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
@@ -88,19 +79,13 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"
     logger.info(s"Sending ping request to submission API, path=$path")
-    http.GET[HttpResponse](path) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body.toString}")
-      response
-    }
+    http.GET[HttpResponse](path)
   }
 
   def retrievalPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalPingUrl}/retrieval/ping"
     logger.info(s"Sending ping request to retrieval API, path=$path")
-    http.GET[HttpResponse](path) map {response =>
-      logger.info(s"$path : ${response.status} : ${response.allHeaders} : ${response.body.toString}")
-      response
-    }
+    http.GET[HttpResponse](path)
   }
 
 }
