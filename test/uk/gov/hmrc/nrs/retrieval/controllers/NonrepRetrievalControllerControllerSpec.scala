@@ -20,6 +20,7 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status
+import play.api.libs.ws.WSResponse
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
@@ -37,10 +38,12 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
   when(mockHttpResponse.status).thenReturn(Status.OK)
   when(mockHttpResponse.allHeaders).thenReturn(Map.empty[String,Seq[String]])
 
+  private val mockWSResponse = mock[WSResponse]
+
   val mocKConnector = mock[NonrepRetrievalConnector]
   when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
   when(mocKConnector.submitRetrievalRequest(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
-  when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockWSResponse))
   when(mocKConnector.statusSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
   val controller = new NonrepRetrievalController(mocKConnector)
@@ -55,13 +58,6 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
   "submitRetrievalRequest" should {
     "pass-through the search response" in {
       val result = controller.submitRetrievalRequest("1", "2")(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
-  }
-
-  "getSubmissionBundle" should {
-    "pass-through the search response" in {
-      val result = controller.getSubmissionBundle("1", "2")(fakeRequest)
       status(result) shouldBe Status.OK
     }
   }

@@ -16,8 +16,11 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers
 
-import javax.inject.Singleton
+import java.io.{FileInputStream, FileOutputStream, IOException}
+import java.nio.file.Files
 
+import akka.util.ByteString
+import javax.inject.Singleton
 import com.google.inject.Inject
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -41,7 +44,8 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
-    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map(response => rewriteResponseBytes(response))
+    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId)
+      .map{response => Ok(response.bodyAsBytes).withHeaders(mapToSeq(response.allHeaders):_*)}
   }
 
   private def rewriteResponse (response: HttpResponse) = {
