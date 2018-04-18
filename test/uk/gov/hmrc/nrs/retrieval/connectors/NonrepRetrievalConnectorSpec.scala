@@ -21,6 +21,7 @@ import org.mockito.Matchers.{any, contains}
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.Environment
+import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -72,24 +73,10 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
     }
   }
 
-  "getSubmissionBundle" should {
-    "make a call to /submission-bundles/$vaultId/$archiveId" in {
-      val httpResponseBody: String = "someResponse"
-      when(mockHttpResponse.status).thenReturn(200)
-      when(mockHttpResponse.body).thenReturn(httpResponseBody)
-      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.GET[Any](contains("submission-bundles"))(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
-
-      connector.getSubmissionBundle(testVaultId, testArchiveId).map { response =>
-        response.body shouldBe httpResponseBody
-      }
-    }
-  }
-
-
   private val mockWsHttp = mock[WSHttpT]
   private val mockEnvironemnt = mock[Environment]
   private val mockAppConfig = mock[AppConfig]
+  private val mockWSClient = mock[WSClient]
 
   private val mockHttpResponse = mock[HttpResponse]
 
@@ -100,6 +87,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       bind(classOf[WSHttpT]).toInstance(mockWsHttp)
       bind(classOf[Environment]).toInstance(mockEnvironemnt)
       bind(classOf[AppConfig]).toInstance(mockAppConfig)
+      bind(classOf[WSClient]).toInstance(mockWSClient)
     }
   }
 
