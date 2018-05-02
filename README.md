@@ -1,8 +1,8 @@
-# nrs-retrieval-frontend
+# nrs-retrieval
 
-[![Build Status](https://travis-ci.org/hmrc/nrs-retrieval-frontend.svg)](https://travis-ci.org/hmrc/nrs-retrieval-frontend) [ ![Download](https://api.bintray.com/packages/hmrc/releases/nrs-retrieval-frontend/images/download.svg) ](https://bintray.com/hmrc/releases/nrs-retrieval-frontend/_latestVersion)
+[![Build Status](https://travis-ci.org/hmrc/nrs-retrieval.svg)](https://travis-ci.org/hmrc/nrs-retrieval) [ ![Download](https://api.bintray.com/packages/hmrc/releases/nrs-retrieval/images/download.svg) ](https://bintray.com/hmrc/releases/nrs-retrieval/_latestVersion)
 
-This is service provides a proxy to the nonrep retrieval backend.
+This is a service providing an MDTP proxy to the nonrep-retrieval API on AWS.
 
 ### License
 
