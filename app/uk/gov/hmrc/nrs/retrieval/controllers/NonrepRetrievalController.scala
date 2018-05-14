@@ -52,7 +52,7 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
     val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
     response.status match {
       case 200 => Ok(response.body).withHeaders(headers:_*)
-      case 202 => Accepted(response.body)
+      case 202 => Accepted(response.body).withHeaders(headers:_*)
       case 404 => NotFound(response.body)
       case _ => Ok(response.body)
     }
@@ -62,7 +62,7 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
     val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
     response.status match {
       case 200 => Ok(response.body.getBytes).withHeaders(headers:_*)
-      case 202 => Accepted(response.body.getBytes)
+      case 202 => Accepted(response.body.getBytes).withHeaders(headers:_*)
       case 404 => NotFound(response.body.getBytes)
       case _ => Ok(response.body.getBytes)
     }
