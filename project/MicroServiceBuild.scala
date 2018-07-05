@@ -1,9 +1,6 @@
-import sbt._
-import play.sbt.PlayImport._
 import play.core.PlayVersion
-import uk.gov.hmrc.SbtAutoBuildPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.versioning.SbtGitVersioning
+import play.sbt.PlayImport._
+import sbt._
 
 object MicroServiceBuild extends Build with MicroService {
 
@@ -14,7 +11,7 @@ object MicroServiceBuild extends Build with MicroService {
   val compile = Seq(
     "uk.gov.hmrc" %% "play-reactivemongo" % "6.2.0",
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-25" % "1.5.0"
+    "uk.gov.hmrc" %% "bootstrap-play-25" % "1.7.0"
   )
 
   def test(scope: String = "test,it") = Seq(
