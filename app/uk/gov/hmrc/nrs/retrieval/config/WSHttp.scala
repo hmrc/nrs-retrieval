@@ -53,7 +53,7 @@ trait WSHttpT extends HttpGet with WSGet
   with AppName with RunMode
 
 @Singleton
-class WSHttp @Inject() (val environment: Environment, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration) extends WSHttpT {
+abstract class WSHttp @Inject()(val environment: Environment, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration) extends WSHttpT {
   val mode: Mode = environment.mode
   override val hooks = NoneRequired
 
