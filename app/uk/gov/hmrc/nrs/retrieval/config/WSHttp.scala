@@ -32,6 +32,7 @@ package uk.gov.hmrc.nrs.retrieval.config
  * limitations under the License.
  */
 
+import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
 import com.google.inject.ImplementedBy
 import com.typesafe.config.Config
@@ -40,8 +41,6 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.http.ws._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[WSHttp])
 trait WSHttpT extends HttpGet with WSGet
@@ -53,10 +52,11 @@ trait WSHttpT extends HttpGet with WSGet
   with AppName with RunMode
 
 @Singleton
-abstract class WSHttp @Inject()(val environment: Environment, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration) extends WSHttpT {
+class WSHttp @Inject()(val environment: Environment, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration, val actorSystem: ActorSystem) extends WSHttpT {
   val mode: Mode = environment.mode
   override val hooks = NoneRequired
 
   // todo : unclear what we need to do with the config here
   override protected def configuration: Option[Config] = None
+
 }
