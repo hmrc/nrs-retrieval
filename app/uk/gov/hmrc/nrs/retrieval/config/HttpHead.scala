@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package uk.gov.hmrc.nrs.retrieval.config
 
 import java.net.URLEncoder
 
+import play.api.Logger
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpVerbs.{HEAD => HEAD_VERB}
 import uk.gov.hmrc.http.hooks.HttpHooks
@@ -30,13 +31,32 @@ trait HeadHttpTransport {
   def doHead(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse]
 }
 
-trait HttpTransport extends GetHttpTransport {
+trait CoreHttpReads[+O] {
+  def read(method: String, url: String, response: HttpResponse): O
+}
+
+object CoreHttpReads extends HttpErrorFunctions {
+
+  private val logger = Logger(this.getClass)
+
+  implicit val readRaw: CoreHttpReads[HttpResponse] = new CoreHttpReads[HttpResponse] {
+    def read(method: String, url: String, response: HttpResponse) = {
+      response.status match {
+        case status if (status == 404) => {
+          logger.info(s"Response status $status for $method $url")
+          response
+        }
+        case _ => handleResponse(method, url)(response)
+      }
+    }
+  }
+
 }
 
 trait CoreHead {
-  def HEAD[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A]
+  def HEAD[A](url: String)(implicit rds: CoreHttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A]
 
-  def HEAD[A](url: String, queryParams: Seq[(String, String)])(implicit rds: HttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A]
+  def HEAD[A](url: String, queryParams: Seq[(String, String)])(implicit rds: CoreHttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A]
 }
 
 trait WSHead extends WSRequest with CoreHead with HeadHttpTransport {
@@ -51,7 +71,7 @@ trait WSHead extends WSRequest with CoreHead with HeadHttpTransport {
 
 trait HttpHead extends CoreHead with HeadHttpTransport with HttpVerb with ConnectionTracing with HttpHooks {
 
-  override def HEAD[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+  override def HEAD[A](url: String)(implicit rds: CoreHttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
     withTracing(HEAD_VERB, url) {
 
       val httpResponse = doHead(url)
@@ -60,7 +80,7 @@ trait HttpHead extends CoreHead with HeadHttpTransport with HttpVerb with Connec
     }
 
   override def HEAD[A](url: String, queryParams: Seq[(String, String)])(
-    implicit rds: HttpReads[A],
+    implicit rds: CoreHttpReads[A],
     hc: HeaderCarrier,
     ec: ExecutionContext): Future[A] = {
     val queryString = makeQueryString(queryParams)
