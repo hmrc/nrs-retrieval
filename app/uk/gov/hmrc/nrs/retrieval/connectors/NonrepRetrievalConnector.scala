@@ -33,10 +33,9 @@ package uk.gov.hmrc.nrs.retrieval.connectors
  */
 
 import javax.inject.{Inject, Singleton}
-import org.apache.http.{HttpResponse => ApacheHttpResponse}
 import play.api.{Environment, Logger}
 import play.api.Mode.Mode
-import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.config.AppConfig
 import uk.gov.hmrc.nrs.retrieval.config.WSHttpT
@@ -47,8 +46,8 @@ import scala.concurrent.Future
 @Singleton
 class NonrepRetrievalConnector @Inject()(val environment: Environment,
                                          val http: WSHttpT,
-                                         ws: WSClient,
-                                         implicit val appConfig: AppConfig) {
+                                         ws: WSClient)
+                                        (implicit val appConfig: AppConfig) {
 
   private val logger = Logger(this.getClass)
 
