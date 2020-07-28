@@ -16,20 +16,17 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers
 
-import java.io.{FileInputStream, FileOutputStream, IOException}
-import java.nio.file.Files
-
-import akka.util.ByteString
 import javax.inject.Singleton
 import com.google.inject.Inject
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import play.api.mvc._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 
 @Singleton()
-class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector) extends BaseController {
+class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector, override val controllerComponents: ControllerComponents)
+  extends BackendController(controllerComponents) {
 
    def search() = Action.async { implicit request =>
     nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))

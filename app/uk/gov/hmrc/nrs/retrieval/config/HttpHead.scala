@@ -39,8 +39,7 @@ object CoreHttpReads extends HttpErrorFunctions {
 
   private val logger = Logger(this.getClass)
 
-  implicit val readRaw: CoreHttpReads[HttpResponse] = new CoreHttpReads[HttpResponse] {
-    def read(method: String, url: String, response: HttpResponse) = {
+  implicit val readRaw: CoreHttpReads[HttpResponse] = (method, url, response) => {
       response.status match {
         case status if (status == 404) => {
           logger.info(s"Response status $status for $method $url")
@@ -49,7 +48,6 @@ object CoreHttpReads extends HttpErrorFunctions {
         case _ => handleResponse(method, url)(response)
       }
     }
-  }
 
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,15 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.libs.ws.WSResponse
-import play.api.test.FakeRequest
+import play.api.mvc.ControllerComponents
+import play.api.test.{FakeRequest, StubControllerComponentsFactory}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar with StubControllerComponentsFactory {
 
   val fakeRequest = FakeRequest("GET", "/")
 
@@ -46,7 +47,9 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
   when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockWSResponse))
   when(mocKConnector.statusSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
-  val controller = new NonrepRetrievalController(mocKConnector)
+  val mocKControllerComponents = mock[ControllerComponents]
+
+  val controller = new NonrepRetrievalController(mocKConnector, stubControllerComponents())
 
   "search" should {
     "pass-through the search response" in {
