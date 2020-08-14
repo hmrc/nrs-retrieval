@@ -18,14 +18,17 @@ package uk.gov.hmrc.nrs.retrieval.controllers
 
 import javax.inject.Singleton
 import com.google.inject.Inject
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import play.api.mvc._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+
+import scala.concurrent.ExecutionContext
 
 @Singleton()
-class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector, override val controllerComponents: ControllerComponents)
+class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRetrievalConnector,
+                                          override val controllerComponents: ControllerComponents)
+                                         (implicit ec: ExecutionContext)
   extends BackendController(controllerComponents) {
 
    def search() = Action.async { implicit request =>
@@ -42,26 +45,16 @@ class NonrepRetrievalController @Inject()(val nonrepRetrievalConnector: NonrepRe
 
   def getSubmissionBundle(vaultId: String, archiveId: String) = Action.async { implicit request =>
     nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId)
-      .map{response => Ok(response.bodyAsBytes).withHeaders(mapToSeq(response.allHeaders):_*)}
+      .map{response => Ok(response.bodyAsBytes).withHeaders(mapToSeq(response.headers):_*)}
   }
 
   private def rewriteResponse (response: HttpResponse) = {
-    val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
+    val headers: Seq[(String, String)] = mapToSeq(response.headers)
     response.status match {
       case 200 => Ok(response.body).withHeaders(headers:_*)
       case 202 => Accepted(response.body).withHeaders(headers:_*)
       case 404 => NotFound(response.body)
       case _ => Ok(response.body)
-    }
-  }
-
-  private def rewriteResponseBytes (response: HttpResponse) = {
-    val headers: Seq[(String, String)] = mapToSeq(response.allHeaders)
-    response.status match {
-      case 200 => Ok(response.body.getBytes).withHeaders(headers:_*)
-      case 202 => Accepted(response.body.getBytes).withHeaders(headers:_*)
-      case 404 => NotFound(response.body.getBytes)
-      case _ => Ok(response.body.getBytes)
     }
   }
 

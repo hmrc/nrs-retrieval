@@ -33,14 +33,13 @@ package uk.gov.hmrc.nrs.retrieval.config
  */
 
 import akka.actor.ActorSystem
-import javax.inject.{Inject, Singleton}
 import com.google.inject.ImplementedBy
 import com.typesafe.config.Config
-import play.api.Mode.Mode
+import javax.inject.{Inject, Singleton}
+import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.http.ws._
-import play.api.libs.ws.WSClient
 
 @ImplementedBy(classOf[WSHttp])
 trait WSHttpT extends HttpGet with WSGet
@@ -53,7 +52,7 @@ trait WSHttpT extends HttpGet with WSGet
 @Singleton
 class WSHttp @Inject()(val environment: Environment, val runModeConfig: Configuration, val appNameConfig: Configuration, val wsClient: WSClient)
                       (implicit val actorSystem: ActorSystem) extends WSHttpT {
-  val mode: Mode = environment.mode
+
   override val hooks = NoneRequired
 
   // todo : unclear what we need to do with the config here

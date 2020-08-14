@@ -26,7 +26,7 @@ import play.api.test.{FakeRequest, StubControllerComponentsFactory}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar with StubControllerComponentsFactory {
@@ -37,7 +37,7 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
   val mockHttpResponse = mock[HttpResponse]
   when(mockHttpResponse.body).thenReturn(httpResponseBody)
   when(mockHttpResponse.status).thenReturn(Status.OK)
-  when(mockHttpResponse.allHeaders).thenReturn(Map.empty[String,Seq[String]])
+  when(mockHttpResponse.headers).thenReturn(Map.empty[String,Seq[String]])
 
   private val mockWSResponse = mock[WSResponse]
 

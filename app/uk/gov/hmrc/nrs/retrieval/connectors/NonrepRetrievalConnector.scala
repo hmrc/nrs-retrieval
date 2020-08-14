@@ -33,25 +33,27 @@ package uk.gov.hmrc.nrs.retrieval.connectors
  */
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Environment, Logger}
-import play.api.Mode.Mode
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.nrs.retrieval.config.AppConfig
-import uk.gov.hmrc.nrs.retrieval.config.WSHttpT
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-
-import scala.concurrent.Future
+import play.api.{Environment, Logger}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
+import uk.gov.hmrc.nrs.retrieval.config.CoreHttpReads.responseHandler
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class NonrepRetrievalConnector @Inject()(val environment: Environment,
                                          val http: WSHttpT,
                                          ws: WSClient)
-                                        (implicit val appConfig: AppConfig) {
+                                        (implicit val appConfig: AppConfig,
+                                         ec: ExecutionContext) {
 
   private val logger = Logger(this.getClass)
 
-  protected def mode: Mode = environment.mode
+  /**
+   * import uk.gov.hmrc.http.HttpReads.Implicits._ could be used instead,
+   * but here we have an additional log entry for 404 status
+   */
+  implicit val readRaw: HttpReads[HttpResponse] = responseHandler(_, _ , _)
 
   def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"
@@ -74,7 +76,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[WSResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
-    ws.url(path).withHeaders(hc.headers ++ hc.extraHeaders ++ hc.otherHeaders: _*).get
+    ws.url(path).withHttpHeaders(hc.headers ++ hc.extraHeaders ++ hc.otherHeaders: _*).get
   }
 
   def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
