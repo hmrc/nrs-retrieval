@@ -27,7 +27,7 @@ import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
 
@@ -36,7 +36,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(200)
-      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
+      when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.search(Seq(("someParameter", "someValue"))).map { response =>
@@ -50,7 +50,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(202)
-      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
+      when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.POST[Any, Any](contains("submission-bundles"), any(), any())(any(), any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.submitRetrievalRequest(testVaultId, testArchiveId).map { response =>
@@ -64,7 +64,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(200)
-      when(mockHttpResponse.allHeaders).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
+      when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockWsHttp.HEAD[Any](contains("submission-bundles"))(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.statusSubmissionBundle(testVaultId, testArchiveId).map { response =>
@@ -74,7 +74,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
   }
 
   private val mockWsHttp = mock[WSHttpT]
-  private val mockEnvironemnt = mock[Environment]
+  private val mockEnvironment = mock[Environment]
   private val mockAppConfig = mock[AppConfig]
   private val mockWSClient = mock[WSClient]
 
@@ -85,9 +85,10 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
   private val testModule = new AbstractModule {
     override def configure(): Unit = {
       bind(classOf[WSHttpT]).toInstance(mockWsHttp)
-      bind(classOf[Environment]).toInstance(mockEnvironemnt)
+      bind(classOf[Environment]).toInstance(mockEnvironment)
       bind(classOf[AppConfig]).toInstance(mockAppConfig)
       bind(classOf[WSClient]).toInstance(mockWSClient)
+      bind(classOf[ExecutionContext]).toInstance(scala.concurrent.ExecutionContext.Implicits.global)
     }
   }
 

@@ -27,9 +27,13 @@ def test(scope: String) = Seq(
   "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
 )
 
+lazy val appName: String = "nrs-retrieval"
+
+val silencerVersion = "1.7.1"
+
 lazy val root = (project in file("."))
   .settings(
-    name := "nrs-retrieval",
+    name := appName,
     organization := "uk.gov.hmrc",
     PlayKeys.playDefaultPort := 9391,
     majorVersion := 0,
@@ -41,6 +45,11 @@ lazy val root = (project in file("."))
       Resolver.jcenterRepo
     ),
     libraryDependencies ++=  compile ++ test("test") ++ test("it"),
+    libraryDependencies ++= Seq(
+      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
+      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+    ),
+    scalacOptions += "-P:silencer:pathFilters=target/.*",
     publishingSettings,
     scoverageSettings)
   .configs(IntegrationTest)
@@ -51,5 +60,6 @@ lazy val root = (project in file("."))
     parallelExecution in IntegrationTest := false
   )
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .disablePlugins(JUnitXmlReportPlugin)
 
 inConfig(IntegrationTest)(Defaults.itSettings)

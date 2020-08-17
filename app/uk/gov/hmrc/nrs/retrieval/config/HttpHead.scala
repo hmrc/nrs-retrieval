@@ -19,8 +19,9 @@ package uk.gov.hmrc.nrs.retrieval.config
 import java.net.URLEncoder
 
 import play.api.Logger
-import uk.gov.hmrc.http._
+import play.api.libs.json.JsArray
 import uk.gov.hmrc.http.HttpVerbs.{HEAD => HEAD_VERB}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.http.logging.ConnectionTracing
 import uk.gov.hmrc.play.http.ws.{WSHttpResponse, WSRequest}
@@ -28,7 +29,7 @@ import uk.gov.hmrc.play.http.ws.{WSHttpResponse, WSRequest}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait HeadHttpTransport {
-  def doHead(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse]
+  def doHead(url: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse]
 }
 
 trait CoreHttpReads[+O] {
@@ -39,16 +40,21 @@ object CoreHttpReads extends HttpErrorFunctions {
 
   private val logger = Logger(this.getClass)
 
-  implicit val readRaw: CoreHttpReads[HttpResponse] = (method, url, response) => {
-      response.status match {
-        case status if (status == 404) => {
-          logger.info(s"Response status $status for $method $url")
+  def responseHandler(method: String, url: String, response: HttpResponse): HttpResponse = {
+    response.status match {
+      case status if (status == 404) => {
+        logger.info(s"Submission bundle not found $status for query $method $url")
+        if(method == HEAD_VERB) {
           response
+        } else {
+          HttpResponse(404, JsArray.empty, Map[String,Seq[String]]())
         }
-        case _ => handleResponse(method, url)(response)
       }
+      case _ => handleResponse(method, url)(response)
     }
+  }
 
+  implicit val readRaw: CoreHttpReads[HttpResponse] = (method, url, response) => responseHandler(method, url, response)
 }
 
 trait CoreHead {
@@ -59,10 +65,8 @@ trait CoreHead {
 
 trait WSHead extends WSRequest with CoreHead with HeadHttpTransport {
 
-  override def doHead(url: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-    buildRequest(url).head().map(new WSHttpResponse(_))
+  override def doHead(url: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+    buildRequest(url).head().map(WSHttpResponse(_))
   }
 
 }
