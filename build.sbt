@@ -38,11 +38,8 @@ lazy val root = (project in file("."))
     PlayKeys.playDefaultPort := 9391,
     majorVersion := 0,
     scalaVersion := "2.12.12",
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("hmrc", "release-candidates"),
+    resolvers ++= Seq(
       Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
     ),
     libraryDependencies ++=  compile ++ test("test") ++ test("it"),
     libraryDependencies ++= Seq(
