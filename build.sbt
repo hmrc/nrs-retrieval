@@ -38,12 +38,6 @@ lazy val root = (project in file("."))
     PlayKeys.playDefaultPort := 9391,
     majorVersion := 0,
     scalaVersion := "2.12.12",
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("hmrc", "release-candidates"),
-      Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
-    ),
     libraryDependencies ++=  compile ++ test("test") ++ test("it"),
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
