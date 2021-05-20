@@ -21,8 +21,7 @@ lazy val compile = Seq(
 )
 
 def test(scope: String) = Seq(
-  //"org.scalatestplus.play" %% "scalatestplus-play" % "{VERSION}" % "test" at some point we will need to remove hmrctest during migration
-"uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
   "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
   "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
