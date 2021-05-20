@@ -39,10 +39,7 @@ lazy val root = (project in file("."))
     majorVersion := 0,
     scalaVersion := "2.12.12",
     resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("hmrc", "release-candidates"),
-      Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
+      Resolver.typesafeRepo("releases")
     ),
     libraryDependencies ++=  compile ++ test("test") ++ test("it"),
     libraryDependencies ++= Seq(
