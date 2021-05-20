@@ -18,7 +18,7 @@ package uk.gov.hmrc.nrs.retrieval.controllers
 
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.libs.ws.WSResponse
 import play.api.mvc.ControllerComponents
