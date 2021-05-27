@@ -120,13 +120,6 @@ class NrsRetrievalIntegrationSpec
         }
       }
 
-      "pass through the X-API-Key header if set and return BAD_REQUEST" when {
-        s"the request has $headersLabel and the submission bundles request returns BAD_REQUEST" in {
-          givenSubmissionBundlesReturns(BAD_REQUEST, withHeaders)
-          request.head().futureValue.status shouldBe BAD_REQUEST
-        }
-      }
-
       "pass through the X-API-Key header if set and return NOT_FOUND" when {
         s"the request has $headersLabel and the submit request returns NOT_FOUND" in {
           givenSubmissionBundlesReturns(NOT_FOUND, withHeaders)
@@ -140,7 +133,7 @@ class NrsRetrievalIntegrationSpec
           request.head().futureValue.status shouldBe INTERNAL_SERVER_ERROR
         }
 
-        Seq(UNAUTHORIZED, FORBIDDEN).foreach{ status =>
+        Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach{ status =>
           s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
             givenSubmissionBundlesReturns(status, withHeaders)
             request.head().futureValue.status shouldBe INTERNAL_SERVER_ERROR
@@ -192,13 +185,6 @@ class NrsRetrievalIntegrationSpec
         }
       }
 
-      "pass through the X-API-Key header if set and return BAD_REQUEST" when {
-        s"the request has $headersLabel and the submit request returns BAD_REQUEST" in {
-          givenSubmitRetrievalRequestReturns(BAD_REQUEST, withHeaders)
-          requestWithHeader.post(requestBody).futureValue.status shouldBe BAD_REQUEST
-        }
-      }
-
       "pass through the X-API-Key header if set and return NOT_FOUND" when {
         s"the request has $headersLabel and the submit request returns NOT_FOUND" in {
           givenSubmitRetrievalRequestReturns(NOT_FOUND, withHeaders)
@@ -212,7 +198,7 @@ class NrsRetrievalIntegrationSpec
           requestWithHeader.post(requestBody).futureValue.status shouldBe INTERNAL_SERVER_ERROR
         }
 
-        Seq(UNAUTHORIZED, FORBIDDEN).foreach { status =>
+        Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
           s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
             givenSubmitRetrievalRequestReturns(status, withHeaders)
             requestWithHeader.post(requestBody).futureValue.status shouldBe INTERNAL_SERVER_ERROR
