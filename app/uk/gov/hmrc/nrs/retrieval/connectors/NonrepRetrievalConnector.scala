@@ -32,12 +32,13 @@ package uk.gov.hmrc.nrs.retrieval.connectors
  * limitations under the License.
  */
 
-import javax.inject.{Inject, Singleton}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Environment, Logger}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
-import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
 import uk.gov.hmrc.nrs.retrieval.config.CoreHttpReads.responseHandler
+import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
+
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -70,13 +71,13 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def statusSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Head $path")
-    http.HEAD(path)
+    http.HEAD(path, hc.extraHeaders)
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[WSResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
-    ws.url(path).withHttpHeaders(hc.headers ++ hc.extraHeaders ++ hc.otherHeaders: _*).get
+    ws.url(path).withHttpHeaders(hc.extraHeaders: _*).get
   }
 
   def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
