@@ -1,4 +1,5 @@
 import play.core.PlayVersion
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, integrationTestSettings}
 import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
@@ -20,11 +21,20 @@ lazy val compile = Seq(
   "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-27"
 )
 
-def test(scope: String) = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % scope,
-  "org.scalatest" %% "scalatest" % "3.0.8" % scope,
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-  "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
+lazy val test = Seq(
+  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % "test",
+  "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+  "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
+  "org.mockito" % "mockito-all" % "2.0.2-beta" % "test"
+)
+
+lazy val itTest = Seq(
+  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % "it",
+  "org.scalatest" %% "scalatest" % "3.0.8" % "it",
+  "com.typesafe.play" %% "play-test" % PlayVersion.current % "it",
+  "org.mockito" % "mockito-all" % "2.0.2-beta" % "it",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "it",
+  "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % "it"
 )
 
 lazy val appName: String = "nrs-retrieval"
@@ -41,7 +51,7 @@ lazy val root = (project in file("."))
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
-    libraryDependencies ++=  compile ++ test("test") ++ test("it"),
+    libraryDependencies ++=  compile ++ test ++ itTest,
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
@@ -49,6 +59,8 @@ lazy val root = (project in file("."))
     scalacOptions += "-P:silencer:pathFilters=target/.*",
     publishingSettings,
     scoverageSettings)
+  .settings(defaultSettings(): _*)
+  .settings(integrationTestSettings())
   .configs(IntegrationTest)
   .settings(
     Keys.fork in IntegrationTest := false,
@@ -58,5 +70,3 @@ lazy val root = (project in file("."))
   )
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .disablePlugins(JUnitXmlReportPlugin)
-
-inConfig(IntegrationTest)(Defaults.itSettings)
