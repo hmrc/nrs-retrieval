@@ -31,8 +31,6 @@ lazy val test = Seq(
 lazy val itTest = Seq(
   "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % "it",
   "org.scalatest" %% "scalatest" % "3.0.8" % "it",
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % "it",
-  "org.mockito" % "mockito-all" % "2.0.2-beta" % "it",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "it",
   "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % "it"
 )
