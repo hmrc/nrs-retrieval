@@ -254,7 +254,7 @@ class NrsRetrievalIntegrationSpec
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
       "pass through the X-API-Key header if set and return OK" when {
-        Seq(OK, CREATED, ACCEPTED, UNAUTHORIZED, FORBIDDEN, INTERNAL_SERVER_ERROR).foreach { status =>
+        Seq(OK, CREATED, ACCEPTED, BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR, BAD_GATEWAY).foreach { status =>
           s"the request has $headersLabel and the submission bundles request returns the status $status" in {
             givenSubmissionBundlesReturns(status, withHeaders)
             request.get().futureValue.status shouldBe OK
