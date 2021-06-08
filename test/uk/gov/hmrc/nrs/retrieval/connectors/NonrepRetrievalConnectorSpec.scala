@@ -30,14 +30,38 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
+  private val mockWsHttp = mock[WSHttpT]
+  private val mockEnvironment = mock[Environment]
+  private val mockAppConfig = mock[AppConfig]
+  private val mockWSClient = mock[WSClient]
+
+  private val mockHttpResponse = mock[HttpResponse]
+
+  implicit val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
+
+  private val testModule = new AbstractModule {
+    override def configure(): Unit = {
+      bind(classOf[WSHttpT]).toInstance(mockWsHttp)
+      bind(classOf[Environment]).toInstance(mockEnvironment)
+      bind(classOf[AppConfig]).toInstance(mockAppConfig)
+      bind(classOf[WSClient]).toInstance(mockWSClient)
+      bind(classOf[ExecutionContext]).toInstance(scala.concurrent.ExecutionContext.Implicits.global)
+    }
+  }
+
+  private val testVaultId = "1"
+  private val testArchiveId = "2"
+
+  private val injector: Injector = Guice.createInjector(testModule)
+  private val connector: NonrepRetrievalConnector = injector.getInstance(classOf[NonrepRetrievalConnector])
 
   "search" should {
-    "make a call to /submission-metadata" in {
+     "make a call to /submission-metadata" in {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(200)
       when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any(), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
       connector.search(Seq(("someParameter", "someValue"))).map { response =>
         response.body shouldBe httpResponseBody
@@ -65,37 +89,16 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(200)
       when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.HEAD[Any](contains("submission-bundles"))(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockHeaderCarrier.headers(any())).thenReturn(Seq.empty)
+      when(mockHeaderCarrier.extraHeaders).thenReturn(Seq.empty)
+      when(mockHeaderCarrier.otherHeaders).thenReturn(Seq.empty)
+
+      when(mockWsHttp.HEAD[Any](contains("submission-bundles"), any[Seq[(String, String)]])(any(), any(), any()))
+        .thenReturn(Future.successful(mockHttpResponse))
 
       connector.statusSubmissionBundle(testVaultId, testArchiveId).map { response =>
         response.status shouldBe 200
       }
     }
   }
-
-  private val mockWsHttp = mock[WSHttpT]
-  private val mockEnvironment = mock[Environment]
-  private val mockAppConfig = mock[AppConfig]
-  private val mockWSClient = mock[WSClient]
-
-  private val mockHttpResponse = mock[HttpResponse]
-
-  implicit val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
-
-  private val testModule = new AbstractModule {
-    override def configure(): Unit = {
-      bind(classOf[WSHttpT]).toInstance(mockWsHttp)
-      bind(classOf[Environment]).toInstance(mockEnvironment)
-      bind(classOf[AppConfig]).toInstance(mockAppConfig)
-      bind(classOf[WSClient]).toInstance(mockWSClient)
-      bind(classOf[ExecutionContext]).toInstance(scala.concurrent.ExecutionContext.Implicits.global)
-    }
-  }
-
-  private val testVaultId = "1"
-  private val testArchiveId = "2"
-
-  private val injector: Injector = Guice.createInjector(testModule)
-  private val connector: NonrepRetrievalConnector = injector.getInstance(classOf[NonrepRetrievalConnector])
-
 }
