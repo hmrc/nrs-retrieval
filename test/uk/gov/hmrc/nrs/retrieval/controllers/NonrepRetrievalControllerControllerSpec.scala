@@ -18,7 +18,6 @@ package uk.gov.hmrc.nrs.retrieval.controllers
 
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.defaultAwaitTimeout
@@ -30,8 +29,7 @@ import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NonrepRetrievalControllerControllerSpec extends UnitSpec with GuiceOneServerPerSuite with StubControllerComponentsFactory {
-
+class NonrepRetrievalControllerControllerSpec extends UnitSpec with StubControllerComponentsFactory {
   private val fakeRequest = FakeRequest("GET", "/")
   private val httpResponseBody = "someResponse"
 
