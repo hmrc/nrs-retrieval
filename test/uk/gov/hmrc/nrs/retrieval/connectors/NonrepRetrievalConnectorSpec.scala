@@ -17,24 +17,22 @@
 package uk.gov.hmrc.nrs.retrieval.connectors
 
 import com.google.inject.{AbstractModule, Guice, Injector}
-import org.mockito.Matchers.{any, contains}
+import org.mockito.Matchers._
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Environment
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.nrs.retrieval.UnitSpec
 import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
+class NonrepRetrievalConnectorSpec extends UnitSpec {
   private val mockWsHttp = mock[WSHttpT]
   private val mockEnvironment = mock[Environment]
   private val mockAppConfig = mock[AppConfig]
   private val mockWSClient = mock[WSClient]
-
   private val mockHttpResponse = mock[HttpResponse]
 
   implicit val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
@@ -56,12 +54,13 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
   private val connector: NonrepRetrievalConnector = injector.getInstance(classOf[NonrepRetrievalConnector])
 
   "search" should {
-     "make a call to /submission-metadata" in {
+    "make a call to /submission-metadata" in {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
-      when(mockHttpResponse.status).thenReturn(200)
+      when(mockHttpResponse.status).thenReturn(OK)
       when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any(), any())(any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.GET[HttpResponse](contains("submission-metadata"), any(), any())(any(), any(), any()))
+        .thenReturn(Future.successful(mockHttpResponse))
 
       connector.search(Seq(("someParameter", "someValue"))).map { response =>
         response.body shouldBe httpResponseBody
@@ -73,9 +72,10 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
     "make a call to /submission-bundles/:vaultId/:archiveId/retrieval-requests" in {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
-      when(mockHttpResponse.status).thenReturn(202)
+      when(mockHttpResponse.status).thenReturn(ACCEPTED)
       when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
-      when(mockWsHttp.POST[Any, Any](contains("submission-bundles"), any(), any())(any(), any(), any(), any())).thenReturn(Future.successful(mockHttpResponse))
+      when(mockWsHttp.POST[Any, Any](contains("submission-bundles"), any(), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(mockHttpResponse))
 
       connector.submitRetrievalRequest(testVaultId, testArchiveId).map { response =>
         response.status shouldBe 202
@@ -87,7 +87,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec with MockitoSugar {
     "make a call to /submission-bundles/$vaultId/$archiveId" in {
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
-      when(mockHttpResponse.status).thenReturn(200)
+      when(mockHttpResponse.status).thenReturn(OK)
       when(mockHttpResponse.headers).thenReturn(Map("headerOne" -> Seq("valOne", "valTwo")))
       when(mockHeaderCarrier.headers(any())).thenReturn(Seq.empty)
       when(mockHeaderCarrier.extraHeaders).thenReturn(Seq.empty)

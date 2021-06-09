@@ -16,32 +16,30 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers
 
-import org.mockito.Matchers.any
+import org.mockito.Matchers._
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status
 import play.api.libs.ws.WSResponse
-import play.api.test.{FakeRequest, StubControllerComponentsFactory}
+import play.api.test.Helpers.defaultAwaitTimeout
+import play.api.test.{FakeRequest, Helpers, StubControllerComponentsFactory}
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.nrs.retrieval.UnitSpec
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar with StubControllerComponentsFactory {
-
+class NonrepRetrievalControllerControllerSpec extends UnitSpec with StubControllerComponentsFactory {
   private val fakeRequest = FakeRequest("GET", "/")
-
   private val httpResponseBody = "someResponse"
-  private val mockHttpResponse = mock[HttpResponse]
-  when(mockHttpResponse.body).thenReturn(httpResponseBody)
-  when(mockHttpResponse.status).thenReturn(Status.OK)
-  when(mockHttpResponse.headers).thenReturn(Map.empty[String,Seq[String]])
 
   private val mockWSResponse = mock[WSResponse]
-
   private val mocKConnector = mock[NonrepRetrievalConnector]
+  private val mockHttpResponse = mock[HttpResponse]
+
+  when(mockHttpResponse.body).thenReturn(httpResponseBody)
+  when(mockHttpResponse.status).thenReturn(Status.OK)
+  when(mockHttpResponse.headers).thenReturn(Map.empty[String, Seq[String]])
   when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
   when(mocKConnector.submitRetrievalRequest(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
   when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockWSResponse))
@@ -52,21 +50,21 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
   "search" should {
     "pass-through the search response" in {
       val result = controller.search()(fakeRequest)
-      status(result) shouldBe Status.OK
+      Helpers.status(result) shouldBe OK
     }
   }
 
   "submitRetrievalRequest" should {
     "pass-through the search response" in {
       val result = controller.submitRetrievalRequest("1", "2")(fakeRequest)
-      status(result) shouldBe Status.OK
+      Helpers.status(result) shouldBe OK
     }
   }
 
   "statusSubmissionBundle" should {
     "pass-through the search response" in {
       val result = controller.statusSubmissionBundle("1", "2")(fakeRequest)
-      status(result) shouldBe Status.OK
+      Helpers.status(result) shouldBe OK
     }
   }
 
@@ -74,12 +72,11 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with WithFakeAppl
     val header = "X-API-Key" -> "aValidKey"
 
     "create a header carrier with an X-API-Key header if one exists in the request" in {
-      controller.headerCarrier(fakeRequest.withHeaders(header)).extraHeaders should contain (header)
+      controller.headerCarrier(fakeRequest.withHeaders(header)).extraHeaders should contain(header)
     }
 
     "create an empty header carrier if no X-API-Key header exists in the request" in {
       controller.headerCarrier(fakeRequest).extraHeaders.contains(header) shouldBe false
     }
   }
-
 }
