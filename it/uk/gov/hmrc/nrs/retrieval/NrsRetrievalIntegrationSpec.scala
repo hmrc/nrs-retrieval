@@ -3,15 +3,17 @@ package uk.gov.hmrc.nrs.retrieval
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 
 class NrsRetrievalIntegrationSpec
-  extends WordSpecLike
+  extends AnyWordSpec
     with Matchers
     with ScalaFutures
     with GuiceOneServerPerSuite
@@ -21,8 +23,6 @@ class NrsRetrievalIntegrationSpec
   private val xApiKeyHeader = "X-API-Key"
   private val xApiKey = "xApiKey"
   private val equalsXApiKey = new EqualToPattern(xApiKey)
-
-  override lazy val port: Int = 19391
 
   private lazy val local = s"http://localhost:$port"
   private lazy val serviceRoot = s"$local/nrs-retrieval"

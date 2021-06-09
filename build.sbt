@@ -1,4 +1,4 @@
-import play.core.PlayVersion
+import play.core.PlayVersion.current
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, integrationTestSettings}
 import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
@@ -17,21 +17,27 @@ lazy val scoverageSettings = {
 
 lazy val compile = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "5.3.0"
+  "uk.gov.hmrc" %% "bootstrap-backend-play-28" % "5.3.0"
 )
 
+val it = "it"
+
 lazy val test = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % "test",
-  "org.scalatest" %% "scalatest" % "3.0.8" % "test",
-  "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
-  "org.mockito" % "mockito-all" % "2.0.2-beta" % "test"
+  "uk.gov.hmrc"            %% "bootstrap-test-play-28" % "5.3.0"   % Test,
+  "org.scalatest"          %% "scalatest"              % "3.2.9"   % Test,
+  "com.typesafe.play"      %% "play-test"              % current   % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play"     % "5.1.0"   % Test,
+  "org.scalatestplus"      %% "mockito-1-10"           % "3.1.0.0" % Test,
+  "com.vladsch.flexmark"    % "flexmark-all"           % "0.35.10" % Test
 )
 
 lazy val itTest = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % "it",
-  "org.scalatest" %% "scalatest" % "3.0.8" % "it",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "it",
-  "com.github.tomakehurst" % "wiremock-jre8" % "2.21.0" % "it"
+  "uk.gov.hmrc"             %% "bootstrap-test-play-28" % "5.3.0"   % it,
+  "org.scalatest"           %% "scalatest"              % "3.2.9"   % it,
+  "com.typesafe.play"       %% "play-test"              % current   % it,
+  "org.scalatestplus.play"  %% "scalatestplus-play"     % "5.1.0"   % it,
+  "com.github.tomakehurst"  %  "wiremock-standalone"    % "2.27.1"  % it,
+  "com.vladsch.flexmark"    % "flexmark-all"            % "0.35.10" % it
 )
 
 lazy val appName: String = "nrs-retrieval"
