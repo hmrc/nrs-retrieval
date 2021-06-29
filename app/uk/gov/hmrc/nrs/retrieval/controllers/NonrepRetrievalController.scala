@@ -55,10 +55,10 @@ class NonrepRetrievalController @Inject()(
         case NOT_FOUND                                 => throw new NotFoundException(errorMessage)
         case status if status >= INTERNAL_SERVER_ERROR => throw new BadGatewayException(errorMessage)
         case status if status >= MULTIPLE_CHOICES      => throw new InternalServerException(errorMessage)
-        case _ =>
+        case status =>
           // log response size rather than the content as this might contain sensitive information
           val bytes = response.bodyAsBytes
-          logger.info(s"$messagePrefix received ${bytes.size} bytes from upstream.")
+          logger.info(s"$messagePrefix received status: [$status] and ${bytes.size} bytes from upstream.")
           Ok(bytes).withHeaders(mapToSeq(response.headers): _*)
       }
     }
