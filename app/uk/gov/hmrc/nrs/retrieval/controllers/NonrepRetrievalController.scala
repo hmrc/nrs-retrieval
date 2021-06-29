@@ -18,6 +18,7 @@ package uk.gov.hmrc.nrs.retrieval.controllers
 
 import javax.inject.Singleton
 import com.google.inject.Inject
+import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse, InternalServerException, NotFoundException}
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
@@ -30,8 +31,9 @@ class NonrepRetrievalController @Inject()(
   val nonrepRetrievalConnector: NonrepRetrievalConnector,
   override val controllerComponents: ControllerComponents)(implicit ec: ExecutionContext)
     extends BackendController(controllerComponents) {
+  private val logger = Logger(this.getClass)
 
-  val search: Action[AnyContent] = Action.async { implicit request =>
+  def search(): Action[AnyContent] = Action.async { implicit request =>
     nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
   }
 
@@ -44,15 +46,20 @@ class NonrepRetrievalController @Inject()(
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
+    val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+
     nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map { response =>
-      val errorMessage =
-        s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId] received unexpected response status: ${response.status.toString}"
+      val errorMessage = s"$messagePrefix received unexpected response status: ${response.status.toString}"
 
       response.status match {
         case NOT_FOUND                                 => throw new NotFoundException(errorMessage)
         case status if status >= INTERNAL_SERVER_ERROR => throw new BadGatewayException(errorMessage)
         case status if status >= MULTIPLE_CHOICES      => throw new InternalServerException(errorMessage)
-        case _                                         => Ok(response.bodyAsBytes).withHeaders(mapToSeq(response.headers): _*)
+        case _ =>
+          // log response size rather than the content as this might contain sensitive information
+          val bytes = response.bodyAsBytes
+          logger.info(s"$messagePrefix received ${bytes.size} bytes from upstream.")
+          Ok(bytes).withHeaders(mapToSeq(response.headers): _*)
       }
     }
   }
