@@ -48,13 +48,17 @@ class NonrepRetrievalController @Inject()(
   def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
     val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
+    logger.info(messagePrefix)
+
     nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map { response =>
-      val errorMessage = s"$messagePrefix received unexpected response status: ${response.status.toString}"
+      val message = s"$messagePrefix received response status: ${response.status.toString}"
+
+      logger.info(message)
 
       response.status match {
-        case NOT_FOUND                                 => throw new NotFoundException(errorMessage)
-        case status if status >= INTERNAL_SERVER_ERROR => throw new BadGatewayException(errorMessage)
-        case status if status >= MULTIPLE_CHOICES      => throw new InternalServerException(errorMessage)
+        case NOT_FOUND                                 => throw new NotFoundException(message)
+        case status if status >= INTERNAL_SERVER_ERROR => throw new BadGatewayException(message)
+        case status if status >= MULTIPLE_CHOICES      => throw new InternalServerException(message)
         case status =>
           // log response size rather than the content as this might contain sensitive information
           val bytes = response.bodyAsBytes
