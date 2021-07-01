@@ -37,17 +37,48 @@ class NonrepRetrievalController @Inject()(
     nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
   }
 
-  def submitRetrievalRequest(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
+  private def debugRequest(method: String, request: Request[_]): Unit =
+    logger.debug(s"$method received request with " +
+        s"attrs: [${request.attrs}] " +
+        s"acceptedTypes: [${request.acceptedTypes}] " +
+        s"acceptLanguages: [${request.acceptLanguages}] " +
+        s"body: [${request.body}] " +
+        s"charset: [${request.charset}] " +
+        s"clientCertificateChain: [${request.clientCertificateChain}] " +
+        s"contentType: [${request.contentType}] " +
+        s"cookies: [${request.cookies}] " +
+        s"domain: [${request.domain}] " +
+        s"headers: [${request.headers}] " +
+        s"host: [${request.host}] " +
+        s"mediaType: [${request.mediaType}] " +
+        s"method: [${request.method}] " +
+        s"path: [${request.path}] " +
+        s"queryString: [${request.queryString}] " +
+        s"remoteAddress: [${request.remoteAddress}] " +
+        s"secure: [${request.secure}] " +
+        s"session: [${request.session}] " +
+        s"uri: [${request.uri}] " +
+        s"version: [${request.version}]"
+    )
+
+  def submitRetrievalRequest(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+    debugRequest("submitRetrievalRequest", request)
+    logger.info(s"post submission bundle request for vaultId: [$vaultId] archiveId: [$archiveId]")
+
     nonrepRetrievalConnector.submitRetrievalRequest(vaultId, archiveId).map(response => rewriteResponse(response))
   }
 
   def statusSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
+    debugRequest("statusSubmissionBundle", request)
+    logger.info(s"head of submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]")
+
     nonrepRetrievalConnector.statusSubmissionBundle(vaultId, archiveId).map(response => rewriteResponse(response))
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
-    val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+    debugRequest("getSubmissionBundle", request)
 
+    val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
     logger.info(messagePrefix)
 
     nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map { response =>
