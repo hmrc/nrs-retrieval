@@ -42,13 +42,22 @@ class NonrepRetrievalController @Inject()(
   }
 
   def statusSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
-    nonrepRetrievalConnector.statusSubmissionBundle(vaultId, archiveId).map(response => rewriteResponse(response))
+    val messagePrefix = s"head submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+
+    logger.info(messagePrefix)
+    debugRequest(messagePrefix, request)
+
+    nonrepRetrievalConnector.statusSubmissionBundle(vaultId, archiveId).map { response =>
+      logger.info(s"$messagePrefix received status: [$response.status] with headers [${response.headers}] from upstream.")
+      rewriteResponse(response)
+    }
   }
 
   def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
     val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
     logger.info(messagePrefix)
+    debugRequest(messagePrefix, request)
 
     nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map { response =>
       val message = s"$messagePrefix received response status: ${response.status.toString}"
@@ -59,14 +68,39 @@ class NonrepRetrievalController @Inject()(
         case NOT_FOUND                                 => throw new NotFoundException(message)
         case status if status >= INTERNAL_SERVER_ERROR => throw new BadGatewayException(message)
         case status if status >= MULTIPLE_CHOICES      => throw new InternalServerException(message)
-        case status =>
+        case status                                    =>
           // log response size rather than the content as this might contain sensitive information
           val bytes = response.bodyAsBytes
-          logger.info(s"$messagePrefix received status: [$status] and ${bytes.size} bytes from upstream.")
+          logger.info(
+            s"$messagePrefix received status: [$status] with headers [${response.headers}] and ${bytes.size} bytes from upstream.")
           Ok(bytes).withHeaders(mapToSeq(response.headers): _*)
       }
     }
   }
+
+  private def debugRequest(messagePrefix: String, request: Request[_]): Unit =
+    logger.debug(
+      s"$messagePrefix received request with " +
+        s"attrs: [${request.attrs}] " +
+        s"acceptedTypes: [${request.acceptedTypes}] " +
+        s"acceptLanguages: [${request.acceptLanguages}] " +
+        s"body: [${request.body}] " +
+        s"charset: [${request.charset}] " +
+        s"clientCertificateChain: [${request.clientCertificateChain}] " +
+        s"contentType: [${request.contentType}] " +
+        s"cookies: [${request.cookies}] " +
+        s"domain: [${request.domain}] " +
+        s"headers: [${request.headers}] " +
+        s"host: [${request.host}] " +
+        s"mediaType: [${request.mediaType}] " +
+        s"method: [${request.method}] " +
+        s"path: [${request.path}] " +
+        s"queryString: [${request.queryString}] " +
+        s"remoteAddress: [${request.remoteAddress}] " +
+        s"secure: [${request.secure}] " +
+        s"session: [${request.session}] " +
+        s"uri: [${request.uri}] " +
+        s"version: [${request.version}]")
 
   private def rewriteResponse(response: HttpResponse) = {
     val headers: Seq[(String, String)] = mapToSeq(response.headers)
