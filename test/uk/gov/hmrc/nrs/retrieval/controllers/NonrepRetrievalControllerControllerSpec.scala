@@ -42,7 +42,7 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with StubControll
   when(mockHttpResponse.headers).thenReturn(Map.empty[String, Seq[String]])
   when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
   when(mocKConnector.submitRetrievalRequest(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
-  when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockWSResponse))
+  when(mocKConnector.getSubmissionBundle(any(), any(), any())(any())).thenReturn(Future.successful(mockWSResponse))
   when(mocKConnector.statusSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
 
   private val controller = new NonrepRetrievalController(mocKConnector, stubControllerComponents())

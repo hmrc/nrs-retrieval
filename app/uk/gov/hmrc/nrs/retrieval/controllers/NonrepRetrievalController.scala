@@ -55,11 +55,12 @@ class NonrepRetrievalController @Inject()(
 
   def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
     val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+    val crossKeySearch = request.queryString.getOrElse("crossKeySearch", Seq.empty).headOption.contains("true")
 
     logger.info(messagePrefix)
     debugRequest(messagePrefix, request)
 
-    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map { response =>
+    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId, crossKeySearch).map { response =>
       val message = s"$messagePrefix received response status: ${response.status.toString}"
 
       logger.info(message)

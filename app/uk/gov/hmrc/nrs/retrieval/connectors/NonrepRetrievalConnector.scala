@@ -75,8 +75,9 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
     http.HEAD(path, allHeaders)
   }
 
-  def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[WSResponse] = {
-    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
+  def getSubmissionBundle(vaultId: String, archiveId: String, crossKeySearch: Boolean)(implicit hc: HeaderCarrier): Future[WSResponse] = {
+    val basePath = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
+    val path = if (crossKeySearch) s"$basePath?crossKeySearch=true" else basePath
     logger.info(s"Get $path")
     ws.url(path).withHttpHeaders(allHeaders: _*).get
   }
