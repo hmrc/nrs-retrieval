@@ -26,3 +26,17 @@ In order to run the application and all of it's dependencies using service manag
 You should then be able to start teh application using:
 
 > ```sm --start NRS_RETRIEVAL_ALL -f```
+
+### Test-only endpoints
+
+There is a test-only endpoint that tests whether the request is authorised with the `stride` enrolment `nrs_digital_investigator`
+
+`GET /nrs-retrieval/test-only/check-authorisation`
+
+If the request is authenticated by `stride` and has the enrolment `nrs_digital_investigator` then `200 OK` is returned
+
+Else if the request is authenticated by `stride` but does not have the enrolment `nrs_digital_investigator` then `403 FORBIDDEN` is returned
+
+Else If the request is not authenticated by `stride` then `401 UNAUTHORIZED` is returned
+
+To enable this endpoint run the service using the `./run-with-test-only-endpoints.sh` script.
