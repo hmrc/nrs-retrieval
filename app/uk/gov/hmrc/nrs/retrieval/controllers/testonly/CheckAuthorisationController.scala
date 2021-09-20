@@ -21,7 +21,6 @@ import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Singleton
-import scala.concurrent.Future
 
 @Singleton()
 class CheckAuthorisationController @Inject()(
@@ -29,7 +28,7 @@ class CheckAuthorisationController @Inject()(
   override val controllerComponents: ControllerComponents)
     extends BackendController(controllerComponents) {
 
-  val checkAuthorisation: Action[AnyContent] = strideAuthAction.async { _ =>
-    Future successful Ok
+  val checkAuthorisation: Action[AnyContent] = strideAuthAction { _ =>
+    Ok("true")
   }
 }

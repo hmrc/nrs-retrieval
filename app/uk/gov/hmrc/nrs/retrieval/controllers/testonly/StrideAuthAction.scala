@@ -37,7 +37,7 @@ class StrideAuthAction @Inject()(override val authConnector: AuthConnector, mcc:
   override protected val executionContext: ExecutionContext = ec
 
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised(AuthProviders(PrivilegedApplication))
       .retrieve(allEnrolments) { enrolments: Enrolments =>
