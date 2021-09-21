@@ -32,13 +32,16 @@ trait StrideAuthHelpers extends MockitoSugar with StubControllerComponentsFactor
   val authConnector: AuthConnector = mock[AuthConnector]
   val strideAuthAction: StrideAuthAction = new StrideAuthAction(authConnector, stubMessagesControllerComponents())
 
+  val nrsDigitalInvestigatorRole  = "nrs_digital_investigator"
+  val nrsRoles = Set(nrsDigitalInvestigatorRole, "nrs digital investigator")
+
   private def givenTheRequestIsAuthenticatedWithRole(role: String) =
     when(authConnector.authorise(any(), any())(any(), any())).thenAnswer(
       new Returns(Future.successful(Enrolments(Set(Enrolment(role, Seq.empty, "state")))))
     )
 
-  def givenTheRequestIsAuthenticatedAndAuthorised(): OngoingStubbing[Future[Nothing]] =
-    givenTheRequestIsAuthenticatedWithRole("nrs_digital_investigator")
+  def givenTheRequestIsAuthenticatedAndAuthorised(role: String): OngoingStubbing[Future[Nothing]] =
+    givenTheRequestIsAuthenticatedWithRole(role)
 
   def givenTheRequestIsAuthenticatedButUnauthorised(): OngoingStubbing[Future[Nothing]] =
     givenTheRequestIsAuthenticatedWithRole("some_other_role")

@@ -30,9 +30,11 @@ class StrideAuthActionSpec extends UnitSpec with StrideAuthHelpers {
 
   "invokeBlock" should {
     "perform the action" when {
-      "the request is authenticated and authorised" in {
-        givenTheRequestIsAuthenticatedAndAuthorised()
-        Helpers.status(strideAuthAction.invokeBlock(request, testBlock)) shouldBe OK
+      nrsRoles.foreach{ role =>
+        s"the request is authenticated and authorised with role $role" in {
+          givenTheRequestIsAuthenticatedAndAuthorised(role)
+          Helpers.status(strideAuthAction.invokeBlock(request, testBlock)) shouldBe OK
+        }
       }
     }
 

@@ -36,12 +36,15 @@ class StrideAuthAction @Inject()(override val authConnector: AuthConnector, mcc:
   override val parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
   override protected val executionContext: ExecutionContext = ec
 
+  //to do - consider whether we really support multiple stride roles, and whether to hard code or configure them.
+  private val nrsRoles = Set("nrs_digital_investigator", "nrs digital investigator")
+
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised(AuthProviders(PrivilegedApplication))
       .retrieve(allEnrolments) { enrolments: Enrolments =>
-        if (enrolments.enrolments.map(_.key).contains("nrs_digital_investigator")) {
+        if (enrolments.enrolments.map(_.key).intersect(nrsRoles).nonEmpty) {
           block(request)
         } else {
           Future successful Forbidden

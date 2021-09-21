@@ -27,7 +27,7 @@ class CheckAuthorisationControllerSpec extends UnitSpec with StrideAuthHelpers {
   "testAuthorisation" should {
     "return OK" when {
       "the request is authenticated and authorised" in {
-        givenTheRequestIsAuthenticatedAndAuthorised()
+        givenTheRequestIsAuthenticatedAndAuthorised(nrsDigitalInvestigatorRole)
         Helpers.status(controller.checkAuthorisation(request)) shouldBe OK
       }
     }
