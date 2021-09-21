@@ -10,4 +10,6 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-->         /                          prod.Routes
+GET /nrs-retrieval/test-only/check-authorisation uk.gov.hmrc.nrs.retrieval.controllers.testonly.CheckAuthorisationController.checkAuthorisation
+
+->  /                                      prod.Routes
