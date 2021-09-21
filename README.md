@@ -29,7 +29,8 @@ You should then be able to start teh application using:
 
 ### Test-only endpoints
 
-There is a test-only endpoint that tests whether the request is authorised with the `stride` enrolment `nrs_digital_investigator`
+There is a test-only endpoint that tests whether the request is authorised with one of the `stride` enrolments 
+{`nrs_digital_investigator`, `nrs digital investigator`}
 
 `GET /nrs-retrieval/test-only/check-authorisation`
 
