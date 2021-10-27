@@ -25,7 +25,7 @@ In order to run the microservice, you must have SBT installed. You should then b
 In order to run the application and all of it's dependencies using service manager, you must have service manager installed.
 You should then be able to start teh application using:
 
-> ```sm --start NRS_RETRIEVAL_ALL -f```
+> ```sm --start NRS_RETRIEVAL_ALL -r```
 
 ### Test-only endpoints
 
