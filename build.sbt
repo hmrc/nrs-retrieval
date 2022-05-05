@@ -32,7 +32,7 @@ lazy val test = Seq(
 )
 
 lazy val itTest = Seq(
-  "uk.gov.hmrc"             %% "bootstrap-test-play-28" % "5.3.0"   % it,
+  "uk.gov.hmrc"             %% "bootstrap-test-play-28" % "5.24.0"  % it,
   "org.scalatest"           %% "scalatest"              % "3.2.9"   % it,
   "com.typesafe.play"       %% "play-test"              % current   % it,
   "org.scalatestplus.play"  %% "scalatestplus-play"     % "5.1.0"   % it,
