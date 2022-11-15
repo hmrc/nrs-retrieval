@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.hooks.{HttpHooks, RequestData, ResponseData}
 import uk.gov.hmrc.http.logging.ConnectionTracing
 import uk.gov.hmrc.play.http.ws.{WSHttpResponse, WSRequest}
 
-import java.net.{URL, URLEncoder}
+import java.net.URLEncoder
 import scala.concurrent.{ExecutionContext, Future}
 
 trait HeadHttpTransport {
