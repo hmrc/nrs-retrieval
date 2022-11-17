@@ -15,15 +15,17 @@ lazy val scoverageSettings = {
   )
 }
 
+val bootstrapPlayVersion = "7.11.0"
+
 lazy val compile = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-backend-play-28" % "5.24.0"
+  "uk.gov.hmrc" %% "bootstrap-backend-play-28" % bootstrapPlayVersion
 )
 
 val it = "it"
 
 lazy val test = Seq(
-  "uk.gov.hmrc"            %% "bootstrap-test-play-28" % "5.24.0"  % Test,
+  "uk.gov.hmrc"            %% "bootstrap-test-play-28" % bootstrapPlayVersion  % Test,
   "org.scalatest"          %% "scalatest"              % "3.2.9"   % Test,
   "com.typesafe.play"      %% "play-test"              % current   % Test,
   "org.scalatestplus.play" %% "scalatestplus-play"     % "5.1.0"   % Test,
@@ -71,5 +73,5 @@ lazy val root = (project in file("."))
     unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
     parallelExecution in IntegrationTest := false
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)

@@ -21,11 +21,11 @@ import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.JsArray
 import uk.gov.hmrc.http.HttpVerbs.{HEAD => HEAD_VERB}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.hooks.HttpHooks
+import uk.gov.hmrc.http.hooks.{HttpHooks, RequestData, ResponseData}
 import uk.gov.hmrc.http.logging.ConnectionTracing
 import uk.gov.hmrc.play.http.ws.{WSHttpResponse, WSRequest}
 
-import java.net.{URL, URLEncoder}
+import java.net.URLEncoder
 import scala.concurrent.{ExecutionContext, Future}
 
 trait HeadHttpTransport {
@@ -73,13 +73,22 @@ trait WSHead extends WSRequest with CoreHead with HeadHttpTransport {
     buildRequest(url, headers).head().map(WSHttpResponse(_))
 }
 
-trait HttpHead extends CoreHead with HeadHttpTransport with HttpVerb with ConnectionTracing with HttpHooks {
+trait HttpHead extends CoreHead with HeadHttpTransport with HttpVerb with ConnectionTracing with HttpHooks with Retries {
+
+  private lazy val hcConfig = HeaderCarrier.Config.fromConfig(configuration)
 
   override def HEAD[A](url: String, headers: Seq[(String, String)])(implicit rds: CoreHttpReads[A], hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
     withTracing(HEAD_VERB, url) {
+      val allHeaders   = HeaderCarrier.headersForUrl(hcConfig, url, headers) :+ "Http-Client-Version" -> BuildInfo.version
+      val httpResponse = retryOnSslEngineClosed(HEAD_VERB, url)(doHead(url, headers = allHeaders))
 
-      val httpResponse = doHead(url, headers)
-      executeHooks(HEAD_VERB, new URL(url), headers, None, httpResponse)
+      executeHooks(
+        HEAD_VERB,
+        url"$url",
+        RequestData(allHeaders, None),
+        httpResponse.map(ResponseData.fromHttpResponse)
+      )
+
       mapErrors(HEAD_VERB, url, httpResponse).map(response => rds.read(HEAD_VERB, url, response))
     }
 
