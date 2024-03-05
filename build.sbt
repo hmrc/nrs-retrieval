@@ -1,7 +1,5 @@
+import uk.gov.hmrc.DefaultBuildSettings
 import play.core.PlayVersion.current
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, integrationTestSettings}
-import uk.gov.hmrc.SbtAutoBuildPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
@@ -9,42 +7,36 @@ lazy val scoverageSettings = {
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;modgiels/.data/..*;" +
       "uk.gov.hmrc.taxhistory.auditable;uk.gov.hmrc.taxhistory.metrics;view.*;controllers.auth.*;filters.*;forms.*;config.*;" +
       ".*BuildInfo.*;prod.Routes;app.Routes;testOnlyDoNotUseInAppConf.Routes;controllers.ExampleController;controllers.testonly.TestOnlyController",
-    ScoverageKeys.coverageMinimum := 70.00,
+    ScoverageKeys.coverageMinimumStmtTotal := 70.00,
     ScoverageKeys.coverageHighlighting := true,
-    parallelExecution in Test := false
+    Test / parallelExecution := false
   )
 }
 
-val bootstrapPlayVersion = "7.11.0"
+val bootstrapPlayVersion = "8.4.0"
+val currentScalaVersion = "2.13.12"
+lazy val appDependencies: Seq[ModuleID] = compile ++ test()
+lazy val appDependenciesIt: Seq[ModuleID] = it()
+lazy val appName: String = "nrs-retrieval"
 
 lazy val compile = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-backend-play-28" % bootstrapPlayVersion
+  "uk.gov.hmrc" %% "bootstrap-backend-play-30" % bootstrapPlayVersion
 )
-
-val it = "it"
-
-lazy val test = Seq(
-  "uk.gov.hmrc"            %% "bootstrap-test-play-28" % bootstrapPlayVersion  % Test,
-  "org.scalatest"          %% "scalatest"              % "3.2.9"   % Test,
-  "com.typesafe.play"      %% "play-test"              % current   % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play"     % "5.1.0"   % Test,
-  "org.scalatestplus"      %% "mockito-1-10"           % "3.1.0.0" % Test,
-  "com.vladsch.flexmark"    % "flexmark-all"           % "0.35.10" % Test
+def test(scope: String = "test"): Seq[ModuleID] = Seq(
+  "uk.gov.hmrc" %% "bootstrap-test-play-30" % bootstrapPlayVersion % scope,
+  "org.scalatest" %% "scalatest" % "3.2.9" % scope,
+  "org.playframework" %% "play-test" % current % scope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.0" % scope,
+  "org.scalatestplus" %% "mockito-1-10" % "3.1.0.0" % scope,
+  "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % scope
 )
-
-lazy val itTest = Seq(
-  "uk.gov.hmrc"             %% "bootstrap-test-play-28" % "5.24.0"  % it,
-  "org.scalatest"           %% "scalatest"              % "3.2.9"   % it,
-  "com.typesafe.play"       %% "play-test"              % current   % it,
-  "org.scalatestplus.play"  %% "scalatestplus-play"     % "5.1.0"   % it,
-  "com.github.tomakehurst"  %  "wiremock-standalone"    % "2.27.1"  % it,
-  "com.vladsch.flexmark"    % "flexmark-all"            % "0.35.10" % it
+def it(scope: String = "test"): Seq[ModuleID] = Seq(
+  "uk.gov.hmrc" %% "bootstrap-test-play-30" % bootstrapPlayVersion % scope,
+  "org.playframework" %% "play-test" % current % scope,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % scope,
+  "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % scope
 )
-
-lazy val appName: String = "nrs-retrieval"
-
-val silencerVersion = "1.7.1"
 
 lazy val root = (project in file("."))
   .settings(
@@ -52,26 +44,24 @@ lazy val root = (project in file("."))
     organization := "uk.gov.hmrc",
     PlayKeys.playDefaultPort := 9391,
     majorVersion := 0,
-    scalaVersion := "2.12.12",
+    scalaVersion := currentScalaVersion,
+    scalacOptions += "-Wconf:cat=deprecation:warning-verbose",
+    scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s",
+    scalacOptions += "-Wconf:src=routes/.*:s",
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
-    libraryDependencies ++=  compile ++ test ++ itTest,
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    ),
-    scalacOptions += "-P:silencer:pathFilters=target/.*",
-    publishingSettings,
+    libraryDependencies ++= appDependencies,
     scoverageSettings)
-  .settings(defaultSettings(): _*)
-  .settings(integrationTestSettings())
-  .configs(IntegrationTest)
-  .settings(
-    Keys.fork in IntegrationTest := false,
-    Defaults.itSettings,
-    unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
-    parallelExecution in IntegrationTest := false
-  )
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
+
+lazy val it = project
+  .dependsOn(root % "test->test")
+  .settings(DefaultBuildSettings.itSettings())
+  .enablePlugins(play.sbt.PlayScala)
+  .settings(scalaVersion := currentScalaVersion)
+  .settings(majorVersion := 1)
+  .settings(
+    libraryDependencies ++= appDependenciesIt
+  )

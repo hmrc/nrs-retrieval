@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers.testonly
 
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito.when
 import org.mockito.internal.stubbing.answers.Returns
 import org.mockito.stubbing.OngoingStubbing
