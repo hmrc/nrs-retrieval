@@ -16,9 +16,14 @@
 
 package uk.gov.hmrc.nrs.retrieval
 
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status
+class TestOnyEndpointsIntegrationSpec extends IntegrationSpec {
+  override def configuration: Map[String, Any] = baseConfiguration + ("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
 
-trait UnitSpec extends AnyWordSpec with Matchers with Status with MockitoSugar
+  "GET /nrs-retrieval/test-only/check-authorisation" should {
+    "return UNAUTHORISED" when {
+      "test-only endpoints are enabled and the request is unauthenticated" in {
+        wsClient.url(s"$serviceRoot/test-only/check-authorisation").get().futureValue.status shouldBe UNAUTHORIZED
+      }
+    }
+  }
+}

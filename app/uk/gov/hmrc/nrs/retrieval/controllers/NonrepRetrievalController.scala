@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers
 
-import javax.inject.Singleton
 import com.google.inject.Inject
 import play.api.Logger
 import play.api.mvc._
@@ -24,6 +23,7 @@ import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse, Inter
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton()
@@ -52,7 +52,6 @@ class NonrepRetrievalController @Inject()(
       rewriteResponse(response)
     }
   }
-
   def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
     val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
@@ -120,7 +119,7 @@ class NonrepRetrievalController @Inject()(
     nonrepRetrievalConnector.retrievalPing().map(response => Ok(response.body))
   }
 
-  private def mapToSeq(sourceMap: Map[String, Seq[String]]): Seq[(String, String)] =
+  private def mapToSeq(sourceMap: Map[String, scala.collection.Seq[String]]): Seq[(String, String)] =
     sourceMap.keys.flatMap(k => sourceMap(k).map(v => (k, v))).toSeq
 
   implicit def headerCarrier(implicit request: Request[AnyContent]): HeaderCarrier = {

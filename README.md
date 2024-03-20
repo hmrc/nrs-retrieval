@@ -18,6 +18,8 @@ In order to run the microservice, you must have SBT installed. You should then b
 > To run the tests for the application, you can run: ```sbt test```
 > or to view coverage run: ```sbt coverage test coverageReport```
 
+> To run the integration tests for the application, you can run: ```sbt it/test```
+
 > Landing page URL for the service is ```https://{HOST:PORT}/nrs-retrieval/start```
 
 ### Running the application using Service Manager

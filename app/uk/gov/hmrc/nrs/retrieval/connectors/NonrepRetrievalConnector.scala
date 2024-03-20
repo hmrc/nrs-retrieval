@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ class NonrepRetrievalConnector @Inject()(val environment: Environment,
   def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[WSResponse] = {
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
-    ws.url(path).withHttpHeaders(allHeaders: _*).get
+    ws.url(path).withHttpHeaders(allHeaders: _*).get()
   }
 
   def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
