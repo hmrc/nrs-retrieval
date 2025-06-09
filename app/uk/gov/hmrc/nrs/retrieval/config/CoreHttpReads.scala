@@ -46,7 +46,7 @@ object CoreHttpReads extends HttpErrorFunctions {
     }
   }
 
-  implicit val readRaw: CoreHttpReads[HttpResponse] = (method, url, response) => responseHandler(method, url, response)
+  given readRaw: CoreHttpReads[HttpResponse] = (method, url, response) => responseHandler(method, url, response)
 }
 
 

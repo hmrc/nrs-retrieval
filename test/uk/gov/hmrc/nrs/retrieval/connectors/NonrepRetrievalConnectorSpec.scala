@@ -29,7 +29,7 @@ class NonrepRetrievalConnectorSpec extends UnitSpec:
   private val mockHttpClientV2                  = mock[HttpClientV2]
   private val mockHttpResponse                  = mock[HttpResponse]
   private val mockRequestBuilder                = mock[RequestBuilder]
-  implicit val mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
+  given mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
 
   "search" should {
     "make a call to /submission-metadata" in {

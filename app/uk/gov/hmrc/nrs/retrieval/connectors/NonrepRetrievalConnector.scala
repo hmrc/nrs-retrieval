@@ -53,7 +53,7 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
 
   /** import uk.gov.hmrc.http.HttpReads.Implicits._ could be used instead, but here we have an additional log entry for 404 status
     */
-  implicit val readRaw: HttpReads[HttpResponse] = responseHandler(_, _, _)
+  given readRaw: HttpReads[HttpResponse] = responseHandler(_, _, _)
 
   def search(queryParams: Seq[(String, String)])(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"

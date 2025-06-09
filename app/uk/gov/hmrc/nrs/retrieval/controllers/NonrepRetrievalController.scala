@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 class NonrepRetrievalController @Inject() (
   val nonrepRetrievalConnector: NonrepRetrievalConnector,
   override val controllerComponents: ControllerComponents
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BackendController(controllerComponents):
   private val logger = Logger(this.getClass)
 

@@ -29,7 +29,7 @@ import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class StrideAuthAction @Inject() (override val authConnector: AuthConnector, mcc: MessagesControllerComponents)(implicit
+class StrideAuthAction @Inject() (override val authConnector: AuthConnector, mcc: MessagesControllerComponents)(using
   ec: ExecutionContext
 ) extends ActionBuilder[Request, AnyContent] with AuthorisedFunctions:
 
@@ -40,7 +40,7 @@ class StrideAuthAction @Inject() (override val authConnector: AuthConnector, mcc
   private val nrsRoles = Set("nrs_digital_investigator", "nrs digital investigator")
 
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+    given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised(AuthProviders(PrivilegedApplication))
       .retrieve(allEnrolments) { enrolments =>
