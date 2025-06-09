@@ -17,8 +17,10 @@
 package uk.gov.hmrc.nrs.retrieval.controllers
 
 import com.google.inject.Inject
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.util.ByteString
 import play.api.Logger
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse, InternalServerException, NotFoundException}
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -27,10 +29,11 @@ import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class NonrepRetrievalController @Inject()(
+class NonrepRetrievalController @Inject() (
   val nonrepRetrievalConnector: NonrepRetrievalConnector,
-  override val controllerComponents: ControllerComponents)(implicit ec: ExecutionContext)
-    extends BackendController(controllerComponents) {
+  override val controllerComponents: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BackendController(controllerComponents):
   private val logger = Logger(this.getClass)
 
   def search(): Action[AnyContent] = Action.async { implicit request =>
@@ -52,28 +55,32 @@ class NonrepRetrievalController @Inject()(
       rewriteResponse(response)
     }
   }
-  def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
+  def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent]    = Action.async { implicit request =>
     val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+
+    given ActorSystem = ActorSystem()
 
     logger.info(messagePrefix)
     debugRequest(messagePrefix, request)
 
-    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).map { response =>
+    nonrepRetrievalConnector.getSubmissionBundle(vaultId, archiveId).flatMap { response =>
       val message = s"$messagePrefix received response status: ${response.status.toString}"
 
       logger.info(message)
 
-      response.status match {
+      response.status match
         case NOT_FOUND                                 => throw new NotFoundException(message)
         case status if status >= INTERNAL_SERVER_ERROR => throw new BadGatewayException(message)
         case status if status >= MULTIPLE_CHOICES      => throw new InternalServerException(message)
         case status                                    =>
           // log response size rather than the content as this might contain sensitive information
-          val bytes = response.bodyAsBytes
-          logger.info(
-            s"$messagePrefix received status: [$status] with headers [${response.headers}] and ${bytes.size} bytes from upstream.")
-          Ok(bytes).withHeaders(mapToSeq(response.headers): _*)
-      }
+          response.bodyAsSource.runFold(ByteString.emptyByteString)(_ ++ _).map { bytes =>
+            //   val bytes = response.bodyAsBytes
+            logger.info(
+              s"$messagePrefix received status: [$status] with headers [${response.headers}] and ${bytes.size} bytes from upstream."
+            )
+            Ok(bytes).withHeaders(mapToSeq(response.headers): _*)
+          }
     }
   }
 
@@ -99,17 +106,16 @@ class NonrepRetrievalController @Inject()(
         s"secure: [${request.secure}] " +
         s"session: [${request.session}] " +
         s"uri: [${request.uri}] " +
-        s"version: [${request.version}]")
+        s"version: [${request.version}]"
+    )
 
-  private def rewriteResponse(response: HttpResponse) = {
+  private def rewriteResponse(response: HttpResponse) =
     val headers: Seq[(String, String)] = mapToSeq(response.headers)
-    response.status match {
+    response.status match
       case OK        => Ok(response.body).withHeaders(headers: _*)
       case ACCEPTED  => Accepted(response.body).withHeaders(headers: _*)
       case NOT_FOUND => NotFound(response.body)
       case _         => Ok(response.body)
-    }
-  }
 
   val submissionPing: Action[AnyContent] = Action.async { implicit request =>
     nonrepRetrievalConnector.submissionPing().map(response => Ok(response.body))
@@ -122,11 +128,8 @@ class NonrepRetrievalController @Inject()(
   private def mapToSeq(sourceMap: Map[String, scala.collection.Seq[String]]): Seq[(String, String)] =
     sourceMap.keys.flatMap(k => sourceMap(k).map(v => (k, v))).toSeq
 
-  implicit def headerCarrier(implicit request: Request[AnyContent]): HeaderCarrier = {
+  implicit def headerCarrier(implicit request: Request[AnyContent]): HeaderCarrier =
     val xApiKey = "X-API-Key"
-    request.headers.get(xApiKey) match {
+    request.headers.get(xApiKey) match
       case Some(xApiKeyValue) => HeaderCarrier().withExtraHeaders(xApiKey -> xApiKeyValue)
       case _                  => HeaderCarrier()
-    }
-  }
-}

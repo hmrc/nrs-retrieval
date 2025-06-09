@@ -18,13 +18,8 @@ import com.google.inject.AbstractModule
 import play.api.libs.concurrent.PekkoGuiceSupport
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-class Module(val environment: Environment, val configuration: Configuration) extends AbstractModule with PekkoGuiceSupport {
-  override def configure(): Unit = {
-    bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
+class Module(val environment: Environment, val configuration: Configuration) extends AbstractModule with PekkoGuiceSupport:
+  override def configure(): Unit =
     bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
-  }
-}

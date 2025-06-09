@@ -16,34 +16,34 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers
 
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.when
 import play.api.http.Status
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.defaultAwaitTimeout
 import play.api.test.{FakeRequest, Helpers, StubControllerComponentsFactory}
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.UnitSpec
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NonrepRetrievalControllerControllerSpec extends UnitSpec with StubControllerComponentsFactory {
-  private val fakeRequest = FakeRequest("GET", "/")
+class NonrepRetrievalControllerControllerSpec extends UnitSpec with StubControllerComponentsFactory:
+  private val fakeRequest      = FakeRequest("GET", "/")
   private val httpResponseBody = "someResponse"
 
-  private val mockWSResponse = mock[WSResponse]
-  private val mocKConnector = mock[NonrepRetrievalConnector]
+  private val mockWSResponse   = mock[WSResponse]
+  private val mocKConnector    = mock[NonrepRetrievalConnector]
   private val mockHttpResponse = mock[HttpResponse]
 
   when(mockHttpResponse.body).thenReturn(httpResponseBody)
   when(mockHttpResponse.status).thenReturn(Status.OK)
   when(mockHttpResponse.headers).thenReturn(Map.empty[String, Seq[String]])
-  when(mocKConnector.search(any())(any())).thenReturn(Future.successful(mockHttpResponse))
-  when(mocKConnector.submitRetrievalRequest(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
-  when(mocKConnector.getSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockWSResponse))
-  when(mocKConnector.statusSubmissionBundle(any(), any())(any())).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.search(any())(using any[HeaderCarrier])).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.submitRetrievalRequest(any(), any())(using any[HeaderCarrier])).thenReturn(Future.successful(mockHttpResponse))
+  when(mocKConnector.getSubmissionBundle(any(), any())(using any[HeaderCarrier])).thenReturn(Future.successful(mockWSResponse))
+  when(mocKConnector.statusSubmissionBundle(any(), any())(using any[HeaderCarrier])).thenReturn(Future.successful(mockHttpResponse))
 
   private val controller = new NonrepRetrievalController(mocKConnector, stubControllerComponents())
 
@@ -79,4 +79,3 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec with StubControll
       controller.headerCarrier(fakeRequest).extraHeaders.contains(header) shouldBe false
     }
   }
-}

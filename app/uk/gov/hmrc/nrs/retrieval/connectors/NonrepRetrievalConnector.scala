@@ -32,67 +32,86 @@ package uk.gov.hmrc.nrs.retrieval.connectors
  * limitations under the License.
  */
 
-import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.{Environment, Logger}
+import play.api.Logger
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 import uk.gov.hmrc.http.HeaderNames.explicitlyIncludedHeaders
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
+import uk.gov.hmrc.nrs.retrieval.config.AppConfig
 import uk.gov.hmrc.nrs.retrieval.config.CoreHttpReads.responseHandler
-import uk.gov.hmrc.nrs.retrieval.config.{AppConfig, WSHttpT}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NonrepRetrievalConnector @Inject()(val environment: Environment,
-                                         val http: WSHttpT,
-                                         ws: WSClient)
-                                        (implicit val appConfig: AppConfig,
-                                         ec: ExecutionContext) {
+class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
+  val appConfig: AppConfig,
+  ec: ExecutionContext
+):
 
   private val logger = Logger(this.getClass)
 
-  /**
-   * import uk.gov.hmrc.http.HttpReads.Implicits._ could be used instead,
-   * but here we have an additional log entry for 404 status
-   */
-  implicit val readRaw: HttpReads[HttpResponse] = responseHandler(_, _ , _)
+  /** import uk.gov.hmrc.http.HttpReads.Implicits._ could be used instead, but here we have an additional log entry for 404 status
+    */
+  implicit val readRaw: HttpReads[HttpResponse] = responseHandler(_, _, _)
 
-  def search(queryParams: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def search(queryParams: Seq[(String, String)])(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"
     logger.info(s"Get $path with $queryParams")
-    http.GET[HttpResponse](path, queryParams)
-  }
+    //   http.GET[HttpResponse](path, queryParams)
 
-  def submitRetrievalRequest(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    httpClientV2
+      .get(url"$path")
+      .transform(_.withQueryStringParameters(queryParams: _*))
+      .execute[HttpResponse]
+
+  def submitRetrievalRequest(vaultId: String, archiveId: String)(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId/retrieval-requests"
     logger.info(s"Post $path")
-    http.POST(path, "", Seq.empty)
-  }
+    // http.POST(path, "", Seq.empty)
 
-  def statusSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    httpClientV2
+      .post(url"$path")
+      .withBody("")
+      .execute[HttpResponse]
+
+  def statusSubmissionBundle(vaultId: String, archiveId: String)(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Head $path")
-    http.HEAD(path, allHeaders)
-  }
+    //   http.HEAD(path, allHeaders)
 
-  def getSubmissionBundle(vaultId: String, archiveId: String)(implicit hc: HeaderCarrier): Future[WSResponse] = {
+    httpClientV2
+      .head(url"$path")
+      .setHeader(allHeaders: _*)
+      .execute[HttpResponse]
+
+  def getSubmissionBundle(vaultId: String, archiveId: String)(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
-    ws.url(path).withHttpHeaders(allHeaders: _*).get()
-  }
+    //  ws.url(path).withHttpHeaders(allHeaders: _*).get()
 
-  def submissionPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    httpClientV2
+      .get(url"$path")
+      .setHeader(allHeaders: _*)
+      .execute[HttpResponse]
+
+  def submissionPing()(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"
     logger.info(s"Sending ping request to submission API, path=$path")
-    http.GET[HttpResponse](path)
-  }
+    // http.GET[HttpResponse](path)
 
-  def retrievalPing()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    httpClientV2
+      .get(url"$path")
+      .execute[HttpResponse]
+
+  def retrievalPing()(using hc: HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalPingUrl}/retrieval/ping"
     logger.info(s"Sending ping request to retrieval API, path=$path")
-    http.GET[HttpResponse](path)
-  }
+    //  http.GET[HttpResponse](path)
 
-  private def allHeaders(implicit hc: HeaderCarrier) =
+    httpClientV2
+      .get(url"$path")
+      .execute[HttpResponse]
+
+  private def allHeaders(using hc: HeaderCarrier) =
     hc.headers(explicitlyIncludedHeaders) ++ hc.extraHeaders ++ hc.otherHeaders
-}
