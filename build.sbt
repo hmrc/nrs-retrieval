@@ -13,7 +13,7 @@ lazy val scoverageSettings = {
   )
 }
 
-val bootstrapPlayVersion = "9.11.0"
+val bootstrapPlayVersion = "9.13.0"
 val currentScalaVersion = "3.3.5"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test()
 lazy val appDependenciesIt: Seq[ModuleID] = it()
@@ -46,12 +46,13 @@ lazy val root = (project in file("."))
     scalacOptions += "-Wconf:msg=unused import&src=html/.*:s",
     scalacOptions += "-Wconf:msg=Flag.*repeatedly:s",
     scalacOptions += "-Wconf:src=routes/.*:s",
+    Test / unmanagedSourceDirectories += baseDirectory.value / "it" / "test",
     resolvers ++= Seq(
       Resolver.typesafeRepo("releases")
     ),
     libraryDependencies ++= appDependencies,
     scoverageSettings)
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin)
 
 lazy val it = project
