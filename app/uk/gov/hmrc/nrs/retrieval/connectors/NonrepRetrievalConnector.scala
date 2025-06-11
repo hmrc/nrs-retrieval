@@ -55,60 +55,48 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
     */
   given readRaw: HttpReads[HttpResponse] = responseHandler(_, _, _)
 
-  def search(queryParams: Seq[(String, String)])(using hc: HeaderCarrier): Future[HttpResponse] =
+  def search(queryParams: Seq[(String, String)])(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-metadata"
     logger.info(s"Get $path with $queryParams")
-    //   http.GET[HttpResponse](path, queryParams)
-
     httpClientV2
       .get(url"$path")
-      .transform(_.withQueryStringParameters(queryParams: _*))
+      .transform(_.withQueryStringParameters(queryParams*))
       .execute[HttpResponse]
 
-  def submitRetrievalRequest(vaultId: String, archiveId: String)(using hc: HeaderCarrier): Future[HttpResponse] =
+  def submitRetrievalRequest(vaultId: String, archiveId: String)(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId/retrieval-requests"
     logger.info(s"Post $path")
-    // http.POST(path, "", Seq.empty)
-
     httpClientV2
       .post(url"$path")
       .withBody("")
       .execute[HttpResponse]
 
-  def statusSubmissionBundle(vaultId: String, archiveId: String)(using hc: HeaderCarrier): Future[HttpResponse] =
+  def statusSubmissionBundle(vaultId: String, archiveId: String)(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Head $path")
-    //   http.HEAD(path, allHeaders)
-
     httpClientV2
       .head(url"$path")
-      .setHeader(allHeaders: _*)
+      .setHeader(allHeaders*)
       .execute[HttpResponse]
 
-  def getSubmissionBundle(vaultId: String, archiveId: String)(using hc: HeaderCarrier): Future[HttpResponse] =
+  def getSubmissionBundle(vaultId: String, archiveId: String)(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/submission-bundles/$vaultId/$archiveId"
     logger.info(s"Get $path")
-    //  ws.url(path).withHttpHeaders(allHeaders: _*).get()
-
     httpClientV2
       .get(url"$path")
-      .setHeader(allHeaders: _*)
+      .setHeader(allHeaders*)
       .execute[HttpResponse]
 
-  def submissionPing()(using hc: HeaderCarrier): Future[HttpResponse] =
+  def submissionPing()(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"
     logger.info(s"Sending ping request to submission API, path=$path")
-    // http.GET[HttpResponse](path)
-
     httpClientV2
       .get(url"$path")
       .execute[HttpResponse]
 
-  def retrievalPing()(using hc: HeaderCarrier): Future[HttpResponse] =
+  def retrievalPing()(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalPingUrl}/retrieval/ping"
     logger.info(s"Sending ping request to retrieval API, path=$path")
-    //  http.GET[HttpResponse](path)
-
     httpClientV2
       .get(url"$path")
       .execute[HttpResponse]

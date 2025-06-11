@@ -44,10 +44,8 @@ class StrideAuthAction @Inject() (override val authConnector: AuthConnector, mcc
 
     authorised(AuthProviders(PrivilegedApplication))
       .retrieve(allEnrolments) { enrolments =>
-        if (enrolments.enrolments.map(_.key).intersect(nrsRoles).nonEmpty) {
-          block(request)
-        } else
-          Future successful Forbidden
+        if enrolments.enrolments.map(_.key).intersect(nrsRoles).nonEmpty then block(request)
+        else Future successful Forbidden
       }
       .recover { case _ =>
         Unauthorized

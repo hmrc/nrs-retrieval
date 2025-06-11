@@ -32,19 +32,22 @@ import scala.concurrent.ExecutionContext
 class NonrepRetrievalController @Inject() (
   val nonrepRetrievalConnector: NonrepRetrievalConnector,
   override val controllerComponents: ControllerComponents
-)(using ec: ExecutionContext)
+)(using ExecutionContext)
     extends BackendController(controllerComponents):
   private val logger = Logger(this.getClass)
 
-  def search(): Action[AnyContent] = Action.async { implicit request =>
+  def search(): Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     nonrepRetrievalConnector.search(mapToSeq(request.queryString)).map(response => Ok(response.body))
   }
 
-  def submitRetrievalRequest(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
+  def submitRetrievalRequest(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     nonrepRetrievalConnector.submitRetrievalRequest(vaultId, archiveId).map(response => rewriteResponse(response))
   }
 
-  def statusSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { implicit request =>
+  def statusSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     val messagePrefix = s"head submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
     logger.info(messagePrefix)
@@ -55,7 +58,8 @@ class NonrepRetrievalController @Inject() (
       rewriteResponse(response)
     }
   }
-  def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent]    = Action.async { implicit request =>
+  def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
     given ActorSystem = ActorSystem()
@@ -75,16 +79,15 @@ class NonrepRetrievalController @Inject() (
         case status                                    =>
           // log response size rather than the content as this might contain sensitive information
           response.bodyAsSource.runFold(ByteString.emptyByteString)(_ ++ _).map { bytes =>
-            //   val bytes = response.bodyAsBytes
             logger.info(
               s"$messagePrefix received status: [$status] with headers [${response.headers}] and ${bytes.size} bytes from upstream."
             )
-            Ok(bytes).withHeaders(mapToSeq(response.headers): _*)
+            Ok(bytes).withHeaders(mapToSeq(response.headers)*)
           }
     }
   }
 
-  private def debugRequest(messagePrefix: String, request: Request[_]): Unit =
+  private def debugRequest(messagePrefix: String, request: Request[?]): Unit =
     logger.debug(
       s"$messagePrefix received request with " +
         s"attrs: [${request.attrs}] " +
@@ -112,16 +115,18 @@ class NonrepRetrievalController @Inject() (
   private def rewriteResponse(response: HttpResponse) =
     val headers: Seq[(String, String)] = mapToSeq(response.headers)
     response.status match
-      case OK        => Ok(response.body).withHeaders(headers: _*)
-      case ACCEPTED  => Accepted(response.body).withHeaders(headers: _*)
+      case OK        => Ok(response.body).withHeaders(headers*)
+      case ACCEPTED  => Accepted(response.body).withHeaders(headers*)
       case NOT_FOUND => NotFound(response.body)
       case _         => Ok(response.body)
 
-  val submissionPing: Action[AnyContent] = Action.async { implicit request =>
+  val submissionPing: Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     nonrepRetrievalConnector.submissionPing().map(response => Ok(response.body))
   }
 
-  val retrievalPing: Action[AnyContent] = Action.async { implicit request =>
+  val retrievalPing: Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     nonrepRetrievalConnector.retrievalPing().map(response => Ok(response.body))
   }
 

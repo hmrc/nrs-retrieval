@@ -22,31 +22,22 @@ import play.api.libs.json.JsArray
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.HttpVerbs.HEAD as HEAD_VERB
 
-trait CoreHttpReads[+O] {
+trait CoreHttpReads[+O]:
   def read(method: String, url: String, response: HttpResponse): O
-}
 
-object CoreHttpReads extends HttpErrorFunctions {
+object CoreHttpReads extends HttpErrorFunctions:
 
   private val logger = Logger(this.getClass)
 
-  def responseHandler(method: String, url: String, response: HttpResponse): HttpResponse = {
-    response.status match {
+  def responseHandler(method: String, url: String, response: HttpResponse): HttpResponse =
+    response.status match
       case status if status == NOT_FOUND =>
         logger.info(s"Submission bundle not found $status for query $method $url")
-        if(method == HEAD_VERB) {
-          response
-        } else {
-          HttpResponse(NOT_FOUND, JsArray.empty, Map[String,Seq[String]]())
-        }
-      case _ => handleResponseEither(method, url)(response) match {
-        case Right(response) => response
-        case Left(err) => throw err
-      }
-    }
-  }
+        if method == HEAD_VERB then response
+        else HttpResponse(NOT_FOUND, JsArray.empty, Map[String, Seq[String]]())
+      case _                             =>
+        handleResponseEither(method, url)(response) match
+          case Right(response) => response
+          case Left(err)       => throw err
 
   given readRaw: CoreHttpReads[HttpResponse] = (method, url, response) => responseHandler(method, url, response)
-}
-
-
