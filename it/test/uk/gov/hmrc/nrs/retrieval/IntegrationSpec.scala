@@ -26,8 +26,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 
 trait IntegrationSpec
-    extends AnyWordSpec with Matchers with ScalaFutures with GuiceOneServerPerSuite with WireMockSupport with IntegrationPatience
-    with BeforeAndAfterEach:
+    extends AnyWordSpec, Matchers, ScalaFutures, GuiceOneServerPerSuite, WireMockSupport, IntegrationPatience, BeforeAndAfterEach:
   lazy val local       = s"http://localhost:$port"
   lazy val serviceRoot = s"$local/nrs-retrieval"
 

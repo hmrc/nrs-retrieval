@@ -32,10 +32,8 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
     wsClient.url(url).withHttpHeaders((xApiKeyHeader, xApiKey))
 
   private def mappingBuilder(headMapping: MappingBuilder, withHeaders: Boolean) =
-    if (withHeaders) {
-      headMapping.withHeader(xApiKeyHeader, equalsXApiKey)
-    } else
-      headMapping
+    if withHeaders then headMapping.withHeader(xApiKeyHeader, equalsXApiKey)
+    else headMapping
 
   private def givenRequestRedirects(builder: MappingBuilder, withHeaders: Boolean): Unit =
     val redirectPath = "/redirect"
@@ -51,13 +49,11 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       mappingBuilder(builder, withHeaders).willReturn(aResponse().withStatus(SEE_OTHER).withHeader("Location", redirectUrl)).build()
     )
 
-  "GET /ping/ping" should {
-    "succeed" in {
+  "GET /ping/ping" should:
+    "succeed" in:
       wsClient.url(s"$local/ping/ping").get().futureValue.status shouldBe OK
-    }
-  }
 
-  "GET /nrs-retrieval/submission/ping" should {
+  "GET /nrs-retrieval/submission/ping" should:
     val url                   = s"$serviceRoot/submission/ping"
     val requestWithoutHeaders = wsClient.url(url)
     val requestWithHeader     = wsClientWithXApiKeyHeader(url)
@@ -74,38 +70,31 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK" when {
+      "pass through the X-API-Key header if set and return OK" when:
         Seq(OK, CREATED, ACCEPTED, NOT_FOUND).foreach { status =>
-          s"the request has $headersLabel and the submission bundles request returns the status $status" in {
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
             givenSubmissionPingReturns(status, withHeaders)
             request.get().futureValue.status shouldBe OK
-          }
         }
 
-        s"the request has $headersLabel and the submit request returns a 3xx status" in {
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(get(urlPathMatching(retrievalPath)), withHeaders)
           request.get().futureValue.status shouldBe OK
-        }
-      }
 
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in:
             givenSubmissionPingReturns(status, withHeaders)
             request.get().futureValue.status shouldBe INTERNAL_SERVER_ERROR
-          }
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when {
-        s"the request has $headersLabel and the submit request returns a 5xx status" in {
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
+        s"the request has $headersLabel and the submit request returns a 5xx status" in:
           givenSubmissionPingReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.get().futureValue.status shouldBe BAD_GATEWAY
-        }
-      }
     }
-  }
 
-  "GET /nrs-retrieval/retrieval/ping" should {
+  "GET /nrs-retrieval/retrieval/ping" should:
     val url                   = s"$serviceRoot/retrieval/ping"
     val requestWithoutHeaders = wsClient.url(url)
     val requestWithHeader     = wsClientWithXApiKeyHeader(url)
@@ -122,39 +111,31 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK" when {
+      "pass through the X-API-Key header if set and return OK" when:
         Seq(OK, CREATED, ACCEPTED, NOT_FOUND).foreach { status =>
-          s"the request has $headersLabel and the submission bundles request returns the status $status" in {
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
             givenRetrievalPingReturns(status, withHeaders)
             request.get().futureValue.status shouldBe OK
-          }
         }
 
-        s"the request has $headersLabel and the submit request returns a 3xx status" in {
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(get(urlPathMatching(retrievalPath)), withHeaders)
           request.get().futureValue.status shouldBe OK
-        }
-      }
 
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in:
             givenRetrievalPingReturns(status, withHeaders)
             request.get().futureValue.status shouldBe INTERNAL_SERVER_ERROR
-          }
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when {
-        s"the request has $headersLabel and the submit request returns a 5xx status" in {
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
+        s"the request has $headersLabel and the submit request returns a 5xx status" in:
           givenRetrievalPingReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.get().futureValue.status shouldBe BAD_GATEWAY
-        }
-      }
     }
 
-  }
-
-  "GET /nrs-retrieval/submission-metadata" should {
+  "GET /nrs-retrieval/submission-metadata" should:
     val url                   = s"$serviceRoot/submission-metadata"
     val requestWithoutHeaders = wsClient.url(url)
     val requestWithHeader     = wsClientWithXApiKeyHeader(url)
@@ -171,38 +152,31 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK" when {
+      "pass through the X-API-Key header if set and return OK" when:
         Seq(OK, CREATED, ACCEPTED, NOT_FOUND).foreach { status =>
-          s"the request has $headersLabel and the submission bundles request returns the status $status" in {
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
             givenSubmissionMetaDataReturns(status, withHeaders)
             request.get().futureValue.status shouldBe OK
-          }
         }
 
-        s"the request has $headersLabel and the submit request returns a 3xx status" in {
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(get(urlPathMatching(retrievalPath)), withHeaders)
           request.get().futureValue.status shouldBe OK
-        }
-      }
 
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in:
             givenSubmissionMetaDataReturns(status, withHeaders)
             request.get().futureValue.status shouldBe INTERNAL_SERVER_ERROR
-          }
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when {
-        s"the request has $headersLabel and the submit request returns a 5xx status" in {
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
+        s"the request has $headersLabel and the submit request returns a 5xx status" in:
           givenSubmissionMetaDataReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.get().futureValue.status shouldBe BAD_GATEWAY
-        }
-      }
     }
-  }
 
-  "GET /nrs-retrieval/submission-bundles/:vaultId/:archiveId" should {
+  "GET /nrs-retrieval/submission-bundles/:vaultId/:archiveId" should:
     val url                   = s"$serviceRoot/submission-bundles/vaultId/archiveId"
     val requestWithoutHeaders = wsClient.url(url)
     val requestWithHeader     = wsClientWithXApiKeyHeader(url)
@@ -219,51 +193,43 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK" when {
+      "pass through the X-API-Key header if set and return OK" when:
         Seq(OK, CREATED, ACCEPTED).foreach { status =>
-          s"the request has $headersLabel and the submission bundles request returns the status $status" in {
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
             givenSubmissionBundlesReturns(status, withHeaders)
             request.get().futureValue.status shouldBe OK
             verify(1, getRequestedFor(urlEqualTo(retrievalPath)))
-          }
         }
 
-        s"the request has $headersLabel and the submit request returns a 3xx status" in {
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(get(urlPathMatching(retrievalPath)), withHeaders)
           request.get().futureValue.status shouldBe OK
           verify(1, getRequestedFor(urlEqualTo(retrievalPath)))
-        }
-      }
 
-      "pass through the X-API-Key header if set and return NOT_FOUND" when {
-        s"the request has $headersLabel and the submission bundles request returns NOT_FOUND" in {
+      "pass through the X-API-Key header if set and return NOT_FOUND" when:
+        s"the request has $headersLabel and the submission bundles request returns NOT_FOUND" in:
           givenSubmissionBundlesReturns(NOT_FOUND, withHeaders)
           request.get().futureValue.status shouldBe NOT_FOUND
           verify(1, getRequestedFor(urlEqualTo(retrievalPath)))
-        }
-      }
 
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submission bundles request returns the status $status" in {
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
             givenSubmissionBundlesReturns(status, withHeaders)
             request.get().futureValue.status shouldBe INTERNAL_SERVER_ERROR
             verify(1, getRequestedFor(urlEqualTo(retrievalPath)))
-          }
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
         Seq(INTERNAL_SERVER_ERROR, BAD_GATEWAY).foreach { status =>
-          s"the request has $headersLabel and the submission bundles request returns the status $status" in {
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
             givenSubmissionBundlesReturns(status, withHeaders)
             request.get().futureValue.status shouldBe BAD_GATEWAY
             verify(1, getRequestedFor(urlEqualTo(retrievalPath)))
-          }
         }
     }
-  }
 
-  "HEAD /nrs-retrieval/submission-bundles/:vaultId/:archiveId" should {
+  "HEAD /nrs-retrieval/submission-bundles/:vaultId/:archiveId" should:
     val url                   = s"$serviceRoot/submission-bundles/vaultId/archiveId"
     val requestWithoutHeaders = wsClient.url(url)
     val requestWithHeader     = wsClientWithXApiKeyHeader(url)
@@ -281,54 +247,47 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
       "pass through the X-API-Key header if set and return OK" when {
-        s"the request has $headersLabel and the submission bundles request returns OK" in {
+        s"the request has $headersLabel and the submission bundles request returns OK" in:
           givenSubmissionBundlesReturns(OK, withHeaders)
           request.head().futureValue.status shouldBe OK
         }
 
-        s"the request has $headersLabel and the submission bundles request returns a 2xx status" in {
+        s"the request has $headersLabel and the submission bundles request returns a 2xx status" in:
           givenSubmissionBundlesReturns(CREATED, withHeaders)
           request.head().futureValue.status shouldBe OK
-        }
+        
 
-        s"the request has $headersLabel and the submit request returns a 3xx status" in {
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(get(urlPathMatching(retrievalPath)), withHeaders)
           request.get().futureValue.status shouldBe OK
-        }
-      }
-
-      "pass through the X-API-Key header if set and return ACCEPTED" when {
-        s"the request has $headersLabel and the submission bundles request returns ACCEPTED" in {
+        
+      "pass through the X-API-Key header if set and return ACCEPTED" when:
+        s"the request has $headersLabel and the submission bundles request returns ACCEPTED" in:
           givenSubmissionBundlesReturns(ACCEPTED, withHeaders)
           request.head().futureValue.status shouldBe ACCEPTED
-        }
-      }
+    
 
-      "pass through the X-API-Key header if set and return NOT_FOUND" when {
-        s"the request has $headersLabel and the submit request returns NOT_FOUND" in {
+      "pass through the X-API-Key header if set and return NOT_FOUND" when:
+        s"the request has $headersLabel and the submit request returns NOT_FOUND" in:
           givenSubmissionBundlesReturns(NOT_FOUND, withHeaders)
           request.head().futureValue.status shouldBe NOT_FOUND
-        }
-      }
+      
 
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in:
             givenSubmissionBundlesReturns(status, withHeaders)
             request.head().futureValue.status shouldBe INTERNAL_SERVER_ERROR
-          }
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when {
-        s"the request has $headersLabel and the submit request returns a 5xx status" in {
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
+        s"the request has $headersLabel and the submit request returns a 5xx status" in:
           givenSubmissionBundlesReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.head().futureValue.status shouldBe BAD_GATEWAY
-        }
-      }
-    }
-  }
+}
+  
 
-  "POST /nrs-retrieval/submission-bundles/:vaultId/:archiveId/retrieval-requests" should {
+  "POST /nrs-retrieval/submission-bundles/:vaultId/:archiveId/retrieval-requests" should:
     val requestBody           = ""
     val url                   = s"$serviceRoot/submission-bundles/vaultId/archiveId/retrieval-requests"
     val requestWithoutHeaders = wsClient.url(url)
@@ -346,58 +305,50 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK " when {
-        s"the request has $headersLabel and the submit request returns OK" in {
+      "pass through the X-API-Key header if set and return OK " when :
+        s"the request has $headersLabel and the submit request returns OK" in :
           givenSubmitRetrievalRequestReturns(OK, withHeaders)
           request.post(requestBody).futureValue.status shouldBe OK
-        }
 
-        s"the request has $headersLabel and the submit request returns a 2xx status" in {
+
+        s"the request has $headersLabel and the submit request returns a 2xx status" in :
           givenSubmitRetrievalRequestReturns(CREATED, withHeaders)
           request.post(requestBody).futureValue.status shouldBe OK
-        }
 
-        s"the request has $headersLabel and the submit request returns a 3xx status" in {
+
+        s"the request has $headersLabel and the submit request returns a 3xx status" in :
           givenRequestRedirects(post(urlPathMatching(retrievalPath)), withHeaders)
           request.post(requestBody).futureValue.status shouldBe OK
-        }
-      }
 
-      "pass through the X-API-Key header if set and return ACCEPTED" when {
-        s"the request has $headersLabel and the submit request returns ACCEPTED" in {
+
+      "pass through the X-API-Key header if set and return ACCEPTED" when :
+        s"the request has $headersLabel and the submit request returns ACCEPTED" in :
           givenSubmitRetrievalRequestReturns(ACCEPTED, withHeaders)
           request.post(requestBody).futureValue.status shouldBe ACCEPTED
-        }
-      }
 
-      "pass through the X-API-Key header if set and return NOT_FOUND" when {
-        s"the request has $headersLabel and the submit request returns NOT_FOUND" in {
+
+      "pass through the X-API-Key header if set and return NOT_FOUND" when :
+        s"the request has $headersLabel and the submit request returns NOT_FOUND" in :
           givenSubmitRetrievalRequestReturns(NOT_FOUND, withHeaders)
           request.post(requestBody).futureValue.status shouldBe NOT_FOUND
-        }
-      }
 
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when
+
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when :
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submit request returns a 4xx status $status" in {
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in :
             givenSubmitRetrievalRequestReturns(status, withHeaders)
             request.post(requestBody).futureValue.status shouldBe INTERNAL_SERVER_ERROR
-          }
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when {
-        s"the request has $headersLabel and the submit request returns a 5xx status" in {
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when :
+        s"the request has $headersLabel and the submit request returns a 5xx status" in :
           givenSubmitRetrievalRequestReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.post(requestBody).futureValue.status shouldBe BAD_GATEWAY
-        }
-      }
     }
-  }
 
-  "GET /nrs-retrieval/test-only/check-authorisation" should {
-    "return NOT_FOUND" when {
-      "test-only endpoints are disabled" in {
+  
+
+  "GET /nrs-retrieval/test-only/check-authorisation" should:
+    "return NOT_FOUND" when:
+      "test-only endpoints are disabled" in:
         wsClient.url(s"$serviceRoot/test-only/check-authorisation").get().futureValue.status shouldBe NOT_FOUND
-      }
-    }
-  }

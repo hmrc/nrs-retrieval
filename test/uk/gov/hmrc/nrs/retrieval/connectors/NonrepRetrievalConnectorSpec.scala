@@ -26,13 +26,13 @@ import uk.gov.hmrc.nrs.retrieval.UnitSpec
 import scala.concurrent.Future
 
 class NonrepRetrievalConnectorSpec extends UnitSpec:
-  private val mockHttpClientV2                  = mock[HttpClientV2]
-  private val mockHttpResponse                  = mock[HttpResponse]
-  private val mockRequestBuilder                = mock[RequestBuilder]
+  private val mockHttpClientV2           = mock[HttpClientV2]
+  private val mockHttpResponse           = mock[HttpResponse]
+  private val mockRequestBuilder         = mock[RequestBuilder]
   given mockHeaderCarrier: HeaderCarrier = mock[HeaderCarrier]
 
-  "search" should {
-    "make a call to /submission-metadata" in {
+  "search" should:
+    "make a call to /submission-metadata" in:
       val httpResponseBody: String = "someResponse"
       when(mockHttpResponse.body).thenReturn(httpResponseBody)
       when(mockHttpResponse.status).thenReturn(OK)
@@ -41,10 +41,9 @@ class NonrepRetrievalConnectorSpec extends UnitSpec:
       when(mockHttpClientV2.get(any())(using any[HeaderCarrier])).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(mockHttpResponse))
-    }
 
-    "submitRetrievalRequest" should {
-      "make a call to /submission-bundles/:vaultId/:archiveId/retrieval-requests" in {
+    "submitRetrievalRequest" should:
+      "make a call to /submission-bundles/:vaultId/:archiveId/retrieval-requests" in:
         val httpResponseBody: String = "someResponse"
         when(mockHttpResponse.body).thenReturn(httpResponseBody)
         when(mockHttpResponse.status).thenReturn(ACCEPTED)
@@ -55,11 +54,8 @@ class NonrepRetrievalConnectorSpec extends UnitSpec:
         when(mockRequestBuilder.withBody(ArgumentMatchers.eq(""))(any(), any(), any())).thenReturn(mockRequestBuilder)
         when(mockRequestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(mockHttpResponse))
 
-      }
-    }
-
-    "statusSubmissionBundle" should {
-      "make a call to /submission-bundles/$vaultId/$archiveId" in {
+    "statusSubmissionBundle" should:
+      "make a call to /submission-bundles/$vaultId/$archiveId" in:
         val httpResponseBody: String = "someResponse"
         when(mockHttpResponse.body).thenReturn(httpResponseBody)
         when(mockHttpResponse.status).thenReturn(OK)
@@ -72,6 +68,3 @@ class NonrepRetrievalConnectorSpec extends UnitSpec:
         when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
         when(mockRequestBuilder.withBody(ArgumentMatchers.eq(""))(any(), any(), any())).thenReturn(mockRequestBuilder)
         when(mockRequestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(mockHttpResponse))
-      }
-    }
-  }

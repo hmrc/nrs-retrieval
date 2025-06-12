@@ -21,4 +21,4 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status
 
-trait UnitSpec extends AnyWordSpec with Matchers with Status with MockitoSugar
+trait UnitSpec extends AnyWordSpec, Matchers, Status, MockitoSugar

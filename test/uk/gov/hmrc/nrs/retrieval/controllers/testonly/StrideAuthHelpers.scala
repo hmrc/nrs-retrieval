@@ -28,7 +28,7 @@ import uk.gov.hmrc.auth.core.{AuthConnector, Enrolment, Enrolments}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait StrideAuthHelpers extends MockitoSugar with StubControllerComponentsFactory:
+trait StrideAuthHelpers extends MockitoSugar, StubControllerComponentsFactory:
   val authConnector: AuthConnector       = mock[AuthConnector]
   val strideAuthAction: StrideAuthAction = new StrideAuthAction(authConnector, stubMessagesControllerComponents())
 

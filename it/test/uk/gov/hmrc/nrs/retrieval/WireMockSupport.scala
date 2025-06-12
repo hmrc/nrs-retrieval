@@ -22,13 +22,13 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Suite}
 import play.api.http.Status
 
-trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfter with Status:
+trait WireMockSupport extends BeforeAndAfterAll, BeforeAndAfter, Status:
   self: Suite =>
   val wireMockHost    = "localhost"
   val wireMockPort    = 11111
   val wireMockBaseUrl = s"http://$wireMockHost:$wireMockPort"
 
-  lazy val wireMockServer = new WireMockServer(wireMockConfig().port(wireMockPort))
+  lazy val wireMockServer = WireMockServer(wireMockConfig().port(wireMockPort))
 
   configureFor(wireMockHost, wireMockPort)
 

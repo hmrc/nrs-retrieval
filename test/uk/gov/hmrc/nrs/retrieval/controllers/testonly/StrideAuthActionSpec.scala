@@ -24,30 +24,24 @@ import uk.gov.hmrc.nrs.retrieval.UnitSpec
 
 import scala.concurrent.Future
 
-class StrideAuthActionSpec extends UnitSpec with StrideAuthHelpers:
+class StrideAuthActionSpec extends UnitSpec, StrideAuthHelpers:
   private val request                                 = FakeRequest("GET", "/")
-  private val testBlock: Request[_] => Future[Result] = _ => Future successful Ok
+  private val testBlock: Request[?] => Future[Result] = _ => Future successful Ok
 
-  "invokeBlock" should {
+  "invokeBlock" should:
     "perform the action" when
       nrsRoles.foreach { role =>
-        s"the request is authenticated and authorised with role $role" in {
+        s"the request is authenticated and authorised with role $role" in:
           givenTheRequestIsAuthenticatedAndAuthorised(role)
           Helpers.status(strideAuthAction.invokeBlock(request, testBlock)) shouldBe OK
-        }
       }
 
-    "return Unauthorized" when {
-      "the request is not authenticated" in {
+    "return Unauthorized" when:
+      "the request is not authenticated" in:
         givenTheRequestIsUnauthenticated()
         Helpers.status(strideAuthAction.invokeBlock(request, testBlock)) shouldBe UNAUTHORIZED
-      }
-    }
 
-    "return Forbidden" when {
-      "the request is authenticated but not authorised" in {
+    "return Forbidden" when:
+      "the request is authenticated but not authorised" in:
         givenTheRequestIsAuthenticatedButUnauthorised()
         Helpers.status(strideAuthAction.invokeBlock(request, testBlock)) shouldBe FORBIDDEN
-      }
-    }
-  }
