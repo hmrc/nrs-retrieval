@@ -20,6 +20,6 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 
-class Module(val environment: Environment, val configuration: Configuration) extends AbstractModule with PekkoGuiceSupport:
+class Module(val environment: Environment, val configuration: Configuration) extends AbstractModule, PekkoGuiceSupport:
   override def configure(): Unit =
     bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])

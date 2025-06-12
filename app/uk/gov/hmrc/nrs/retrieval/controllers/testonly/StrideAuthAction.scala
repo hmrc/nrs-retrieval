@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton()
 class StrideAuthAction @Inject() (override val authConnector: AuthConnector, mcc: MessagesControllerComponents)(using
   ec: ExecutionContext
-) extends ActionBuilder[Request, AnyContent] with AuthorisedFunctions:
+) extends ActionBuilder[Request, AnyContent], AuthorisedFunctions:
 
   override val parser: BodyParser[AnyContent]               = mcc.parsers.defaultBodyParser
   override protected val executionContext: ExecutionContext = ec
