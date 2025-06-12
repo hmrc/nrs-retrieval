@@ -39,6 +39,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.nrs.retrieval.config.AppConfig
 import uk.gov.hmrc.nrs.retrieval.config.CoreHttpReads.responseHandler
+import uk.gov.hmrc.http.client.readStreamHttpResponse
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -85,7 +86,7 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
     httpClientV2
       .get(url"$path")
       .setHeader(allHeaders*)
-      .execute[HttpResponse]
+      .stream[HttpResponse] // .stream[HttpResponse] required as execute causes issues while deploying the .zip bundle (unextractable due to charset parsing)
 
   def submissionPing()(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"
