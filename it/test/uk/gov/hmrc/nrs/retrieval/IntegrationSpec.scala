@@ -26,9 +26,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 
 trait IntegrationSpec
-    extends AnyWordSpec with Matchers with ScalaFutures with GuiceOneServerPerSuite with WireMockSupport with IntegrationPatience
-    with BeforeAndAfterEach {
-  lazy val local = s"http://localhost:$port"
+    extends AnyWordSpec, Matchers, ScalaFutures, GuiceOneServerPerSuite, WireMockSupport, IntegrationPatience, BeforeAndAfterEach:
+  lazy val local       = s"http://localhost:$port"
   lazy val serviceRoot = s"$local/nrs-retrieval"
 
   /*
@@ -41,12 +40,12 @@ trait IntegrationSpec
 
   val baseConfiguration: Map[String, Any] = Map[String, Any](
     "awsservices.nonrepSubmissionPing.url" -> wireMockBaseUrl,
-    "awsservices.nonrepRetrievalPing.url" -> wireMockBaseUrl,
-    "awsservices.nonrepRetrieval.url" -> wireMockBaseUrl,
-    "auditing.enabled" -> false,
-    "metrics.jvm" -> false)
+    "awsservices.nonrepRetrievalPing.url"  -> wireMockBaseUrl,
+    "awsservices.nonrepRetrieval.url"      -> wireMockBaseUrl,
+    "auditing.enabled"                     -> false,
+    "metrics.jvm"                          -> false
+  )
 
   def configuration: Map[String, Any] = baseConfiguration
 
   override def fakeApplication(): Application = new GuiceApplicationBuilder().configure(configuration).build()
-}

@@ -17,11 +17,11 @@
 package uk.gov.hmrc.nrs.retrieval.controllers.testonly
 
 import com.google.inject.Inject
-import play.api.mvc.Results._
-import play.api.mvc._
+import play.api.mvc.*
+import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.AuthProvider.PrivilegedApplication
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.allEnrolments
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders, AuthorisedFunctions, Enrolments}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -29,29 +29,24 @@ import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class StrideAuthAction @Inject()(override val authConnector: AuthConnector, mcc: MessagesControllerComponents)(
-  implicit ec: ExecutionContext)
-    extends ActionBuilder[Request, AnyContent] with AuthorisedFunctions {
+class StrideAuthAction @Inject() (override val authConnector: AuthConnector, mcc: MessagesControllerComponents)(using
+  ec: ExecutionContext
+) extends ActionBuilder[Request, AnyContent], AuthorisedFunctions:
 
-  override val parser: BodyParser[AnyContent] = mcc.parsers.defaultBodyParser
+  override val parser: BodyParser[AnyContent]               = mcc.parsers.defaultBodyParser
   override protected val executionContext: ExecutionContext = ec
 
-  //to do - consider whether we really support multiple stride roles, and whether to hard code or configure them.
+  // to do - consider whether we really support multiple stride roles, and whether to hard code or configure them.
   private val nrsRoles = Set("nrs_digital_investigator", "nrs digital investigator")
 
-  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+    given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised(AuthProviders(PrivilegedApplication))
-      .retrieve(allEnrolments) { enrolments: Enrolments =>
-        if (enrolments.enrolments.map(_.key).intersect(nrsRoles).nonEmpty) {
-          block(request)
-        } else {
-          Future successful Forbidden
-        }
+      .retrieve(allEnrolments) { enrolments =>
+        if enrolments.enrolments.map(_.key).intersect(nrsRoles).nonEmpty then block(request)
+        else Future successful Forbidden
       }
-      .recover {
-        case _ => Unauthorized
+      .recover { case _ =>
+        Unauthorized
       }
-  }
-}

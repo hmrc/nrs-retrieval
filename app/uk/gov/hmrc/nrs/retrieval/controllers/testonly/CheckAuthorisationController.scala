@@ -17,18 +17,17 @@
 package uk.gov.hmrc.nrs.retrieval.controllers.testonly
 
 import com.google.inject.Inject
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Singleton
 
 @Singleton()
-class CheckAuthorisationController @Inject()(
+class CheckAuthorisationController @Inject() (
   val strideAuthAction: StrideAuthAction,
-  override val controllerComponents: ControllerComponents)
-    extends BackendController(controllerComponents) {
+  override val controllerComponents: ControllerComponents
+) extends BackendController(controllerComponents):
 
   val checkAuthorisation: Action[AnyContent] = strideAuthAction { _ =>
     Ok("true")
   }
-}

@@ -20,30 +20,22 @@ import play.api.test.Helpers.defaultAwaitTimeout
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.nrs.retrieval.UnitSpec
 
-class CheckAuthorisationControllerSpec extends UnitSpec with StrideAuthHelpers {
-  private val request = FakeRequest("GET", "/")
+class CheckAuthorisationControllerSpec extends UnitSpec, StrideAuthHelpers:
+  private val request    = FakeRequest("GET", "/")
   private val controller = new CheckAuthorisationController(strideAuthAction, stubControllerComponents())
 
-  "testAuthorisation" should {
-    "return OK" when {
-      "the request is authenticated and authorised" in {
+  "testAuthorisation" should:
+    "return OK" when:
+      "the request is authenticated and authorised" in:
         givenTheRequestIsAuthenticatedAndAuthorised(nrsDigitalInvestigatorRole)
         Helpers.status(controller.checkAuthorisation(request)) shouldBe OK
-      }
-    }
 
-    "return Unauthorized" when {
-      "return UNAUTHORIZED" in {
+    "return Unauthorized" when:
+      "return UNAUTHORIZED" in:
         givenTheRequestIsUnauthenticated()
         Helpers.status(controller.checkAuthorisation(request)) shouldBe UNAUTHORIZED
-      }
-    }
 
-    "return Forbidden" when {
-      "return FORBIDDEN" in {
+    "return Forbidden" when:
+      "return FORBIDDEN" in:
         givenTheRequestIsAuthenticatedButUnauthorised()
         Helpers.status(controller.checkAuthorisation(request)) shouldBe FORBIDDEN
-      }
-    }
-  }
-}

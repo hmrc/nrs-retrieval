@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers.testonly
 
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.when
 import org.mockito.internal.stubbing.answers.Returns
 import org.mockito.stubbing.OngoingStubbing
@@ -28,12 +28,12 @@ import uk.gov.hmrc.auth.core.{AuthConnector, Enrolment, Enrolments}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait StrideAuthHelpers extends MockitoSugar with StubControllerComponentsFactory {
-  val authConnector: AuthConnector = mock[AuthConnector]
+trait StrideAuthHelpers extends MockitoSugar, StubControllerComponentsFactory:
+  val authConnector: AuthConnector       = mock[AuthConnector]
   val strideAuthAction: StrideAuthAction = new StrideAuthAction(authConnector, stubMessagesControllerComponents())
 
-  val nrsDigitalInvestigatorRole  = "nrs_digital_investigator"
-  val nrsRoles = Set(nrsDigitalInvestigatorRole, "nrs digital investigator")
+  val nrsDigitalInvestigatorRole = "nrs_digital_investigator"
+  val nrsRoles                   = Set(nrsDigitalInvestigatorRole, "nrs digital investigator")
 
   private def givenTheRequestIsAuthenticatedWithRole(role: String) =
     when(authConnector.authorise(any(), any())(any(), any())).thenAnswer(
@@ -48,4 +48,3 @@ trait StrideAuthHelpers extends MockitoSugar with StubControllerComponentsFactor
 
   def givenTheRequestIsUnauthenticated(): OngoingStubbing[Future[Nothing]] =
     when(authConnector.authorise(any(), any())(any(), any())).thenAnswer(new Returns(Future.successful(EmptyRetrieval)))
-}
