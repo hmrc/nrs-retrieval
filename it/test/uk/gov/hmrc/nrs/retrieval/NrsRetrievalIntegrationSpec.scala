@@ -246,32 +246,28 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK" when {
+      "pass through the X-API-Key header if set and return OK" when:
         s"the request has $headersLabel and the submission bundles request returns OK" in:
           givenSubmissionBundlesReturns(OK, withHeaders)
           request.head().futureValue.status shouldBe OK
-        }
 
         s"the request has $headersLabel and the submission bundles request returns a 2xx status" in:
           givenSubmissionBundlesReturns(CREATED, withHeaders)
           request.head().futureValue.status shouldBe OK
-        
 
         s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(get(urlPathMatching(retrievalPath)), withHeaders)
           request.get().futureValue.status shouldBe OK
-        
+
       "pass through the X-API-Key header if set and return ACCEPTED" when:
         s"the request has $headersLabel and the submission bundles request returns ACCEPTED" in:
           givenSubmissionBundlesReturns(ACCEPTED, withHeaders)
           request.head().futureValue.status shouldBe ACCEPTED
-    
 
       "pass through the X-API-Key header if set and return NOT_FOUND" when:
         s"the request has $headersLabel and the submit request returns NOT_FOUND" in:
           givenSubmissionBundlesReturns(NOT_FOUND, withHeaders)
           request.head().futureValue.status shouldBe NOT_FOUND
-      
 
       "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
@@ -284,8 +280,7 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
         s"the request has $headersLabel and the submit request returns a 5xx status" in:
           givenSubmissionBundlesReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.head().futureValue.status shouldBe BAD_GATEWAY
-}
-  
+    }
 
   "POST /nrs-retrieval/submission-bundles/:vaultId/:archiveId/retrieval-requests" should:
     val requestBody           = ""
@@ -305,48 +300,41 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       (requestWithHeader, true, "the X-API-Key header"),
       (requestWithoutHeaders, false, "no headers")
     ).foreach { case (request, withHeaders, headersLabel) =>
-      "pass through the X-API-Key header if set and return OK " when :
-        s"the request has $headersLabel and the submit request returns OK" in :
+      "pass through the X-API-Key header if set and return OK " when:
+        s"the request has $headersLabel and the submit request returns OK" in:
           givenSubmitRetrievalRequestReturns(OK, withHeaders)
           request.post(requestBody).futureValue.status shouldBe OK
 
-
-        s"the request has $headersLabel and the submit request returns a 2xx status" in :
+        s"the request has $headersLabel and the submit request returns a 2xx status" in:
           givenSubmitRetrievalRequestReturns(CREATED, withHeaders)
           request.post(requestBody).futureValue.status shouldBe OK
 
-
-        s"the request has $headersLabel and the submit request returns a 3xx status" in :
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
           givenRequestRedirects(post(urlPathMatching(retrievalPath)), withHeaders)
           request.post(requestBody).futureValue.status shouldBe OK
 
-
-      "pass through the X-API-Key header if set and return ACCEPTED" when :
-        s"the request has $headersLabel and the submit request returns ACCEPTED" in :
+      "pass through the X-API-Key header if set and return ACCEPTED" when:
+        s"the request has $headersLabel and the submit request returns ACCEPTED" in:
           givenSubmitRetrievalRequestReturns(ACCEPTED, withHeaders)
           request.post(requestBody).futureValue.status shouldBe ACCEPTED
 
-
-      "pass through the X-API-Key header if set and return NOT_FOUND" when :
-        s"the request has $headersLabel and the submit request returns NOT_FOUND" in :
+      "pass through the X-API-Key header if set and return NOT_FOUND" when:
+        s"the request has $headersLabel and the submit request returns NOT_FOUND" in:
           givenSubmitRetrievalRequestReturns(NOT_FOUND, withHeaders)
           request.post(requestBody).futureValue.status shouldBe NOT_FOUND
 
-
-      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when :
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
         Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach { status =>
-          s"the request has $headersLabel and the submit request returns a 4xx status $status" in :
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in:
             givenSubmitRetrievalRequestReturns(status, withHeaders)
             request.post(requestBody).futureValue.status shouldBe INTERNAL_SERVER_ERROR
         }
 
-      "pass through the X-API-Key header if set and return BAD_GATEWAY" when :
-        s"the request has $headersLabel and the submit request returns a 5xx status" in :
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
+        s"the request has $headersLabel and the submit request returns a 5xx status" in:
           givenSubmitRetrievalRequestReturns(INTERNAL_SERVER_ERROR, withHeaders)
           request.post(requestBody).futureValue.status shouldBe BAD_GATEWAY
     }
-
-  
 
   "GET /nrs-retrieval/test-only/check-authorisation" should:
     "return NOT_FOUND" when:
