@@ -86,7 +86,9 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
     httpClientV2
       .get(url"$path")
       .setHeader(allHeaders*)
-      .stream[HttpResponse] // .stream[HttpResponse] required as execute causes issues while deploying the .zip bundle (unextractable due to charset parsing)
+      .stream[
+        HttpResponse
+      ] // .stream[HttpResponse] required as execute causes issues while deploying the .zip bundle (unextractable due to charset parsing)
 
   def submissionPing()(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepSubmissionPingUrl}/submission/ping"

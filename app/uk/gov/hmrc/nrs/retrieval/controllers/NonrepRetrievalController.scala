@@ -48,7 +48,7 @@ class NonrepRetrievalController @Inject() (
 
   def statusSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { request =>
     given Request[AnyContent] = request
-    val messagePrefix = s"head submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+    val messagePrefix         = s"head submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
     logger.info(messagePrefix)
     debugRequest(messagePrefix, request)
@@ -58,9 +58,9 @@ class NonrepRetrievalController @Inject() (
       rewriteResponse(response)
     }
   }
-  def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent] = Action.async { request =>
+  def getSubmissionBundle(vaultId: String, archiveId: String): Action[AnyContent]    = Action.async { request =>
     given Request[AnyContent] = request
-    val messagePrefix = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
+    val messagePrefix         = s"get submission bundle for vaultId: [$vaultId] archiveId: [$archiveId]"
 
     given ActorSystem = ActorSystem()
 
