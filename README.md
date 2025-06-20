@@ -43,3 +43,13 @@ Else if the request is authenticated by `stride` but does not have the enrolment
 Else If the request is not authenticated by `stride` then `401 UNAUTHORIZED` is returned
 
 To enable this endpoint run the service using the `./run-with-test-only-endpoints.sh` script.
+
+
+### Check and Reformat code
+
+All code should be formatted before being pushed, to check the format  
+>   ```sbt scalafmtCheckAll it/scalafmtCheckAll```
+
+and reformat if required:
+
+>   ```sbt scalafmtAll it/scalafmtAll```
