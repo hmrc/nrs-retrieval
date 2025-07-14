@@ -32,14 +32,14 @@ package uk.gov.hmrc.nrs.retrieval.connectors
  * limitations under the License.
  */
 
+import org.apache.pekko.util.ByteString
 import play.api.Logger
-import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
+import play.api.libs.ws.DefaultBodyWritables.{writeableOf_Bytes, writeableOf_String}
 import uk.gov.hmrc.http.HeaderNames.explicitlyIncludedHeaders
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.{readStreamHttpResponse, HttpClientV2}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.nrs.retrieval.config.AppConfig
 import uk.gov.hmrc.nrs.retrieval.config.CoreHttpReads.responseHandler
-import uk.gov.hmrc.http.client.readStreamHttpResponse
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -102,6 +102,15 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
     logger.info(s"Sending ping request to retrieval API, path=$path")
     httpClientV2
       .get(url"$path")
+      .execute[HttpResponse]
+
+  def multiMetadataSearch(body: ByteString)(using HeaderCarrier): Future[HttpResponse] =
+    val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/metadata/searches"
+    logger.info(s"Post $path")
+    httpClientV2
+      .post(url"$path")
+      .withBody(body)
+      .setHeader(allHeaders*)
       .execute[HttpResponse]
 
   private def allHeaders(using hc: HeaderCarrier) =

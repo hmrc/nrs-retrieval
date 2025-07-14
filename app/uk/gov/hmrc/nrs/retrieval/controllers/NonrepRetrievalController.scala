@@ -87,6 +87,14 @@ class NonrepRetrievalController @Inject() (
     }
   }
 
+  def multiMetadataSearch(): Action[ByteString] = Action(parse.byteString).async { request =>
+    given Request[ByteString] = request
+
+    nonrepRetrievalConnector
+      .multiMetadataSearch(request.body)
+      .map(response => Ok(response.body))
+  }
+
   private def debugRequest(messagePrefix: String, request: Request[?]): Unit =
     logger.debug(
       s"$messagePrefix received request with " +
