@@ -367,6 +367,12 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
       )
 
       wireMockServer.addStubMapping(
+        mappingBuilder(get(urlPathMatching(redirectPath)), withHeaders)
+          .willReturn(aResponse().withStatus(OK))
+          .build()
+      )
+
+      wireMockServer.addStubMapping(
         mappingBuilder(builder, withHeaders).willReturn(aResponse().withStatus(SEE_OTHER).withHeader("Location", redirectUrl)).build()
       )
 
