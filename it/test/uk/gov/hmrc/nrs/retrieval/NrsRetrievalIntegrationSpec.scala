@@ -19,6 +19,8 @@ package uk.gov.hmrc.nrs.retrieval
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import com.github.tomakehurst.wiremock.matching.EqualToPattern
+import org.scalatest.AppendedClues.convertToClueful
+import org.scalatest.time.{Seconds, Span}
 import play.api.libs.ws.writeableOf_String
 
 class NrsRetrievalIntegrationSpec extends IntegrationSpec:
@@ -340,3 +342,79 @@ class NrsRetrievalIntegrationSpec extends IntegrationSpec:
     "return NOT_FOUND" when:
       "test-only endpoints are disabled" in:
         wsClient.url(s"$serviceRoot/test-only/check-authorisation").get().futureValue.status shouldBe NOT_FOUND
+
+  "POST /metadata/searches" should:
+    val url                   = s"$serviceRoot/metadata/searches"
+    val requestWithoutHeaders = wsClient.url(url)
+    val requestWithHeader     = wsClientWithXApiKeyHeader(url)
+    val retrievalPath         = "/retrieval/metadata/searches"
+
+    val validRequestBody = "{}"
+
+    def givenSubmissionMultiMetaDataReturns(status: Int, withHeaders: Boolean): Unit =
+      wireMockServer.addStubMapping(
+        mappingBuilder(post(urlPathMatching(retrievalPath)), withHeaders)
+          .willReturn(aResponse().withStatus(status).withBody(""))
+          .build()
+      )
+
+    def givenRequestMultiRedirects(builder: MappingBuilder, withHeaders: Boolean): Unit =
+      val redirectPath = "/redirect"
+      val redirectUrl  = s"$wireMockBaseUrl$redirectPath"
+
+      wireMockServer.addStubMapping(
+        mappingBuilder(post(urlPathMatching(redirectPath)), withHeaders)
+          .willReturn(aResponse().withStatus(OK))
+          .build()
+      )
+
+      wireMockServer.addStubMapping(
+        mappingBuilder(get(urlPathMatching(redirectPath)), withHeaders)
+          .willReturn(aResponse().withStatus(OK))
+          .build()
+      )
+
+      wireMockServer.addStubMapping(
+        mappingBuilder(builder, withHeaders).willReturn(aResponse().withStatus(SEE_OTHER).withHeader("Location", redirectUrl)).build()
+      )
+
+    Seq(
+      (requestWithHeader, true, "the X-API-Key header"),
+      (requestWithoutHeaders, false, "no headers")
+    ).foreach { case (request, withHeaders, headersLabel) =>
+      "pass through the X-API-Key header if set and return OK" when:
+        Seq(OK, CREATED, ACCEPTED).foreach: status =>
+          s"the request has $headersLabel and the submission bundles request returns the status $status" in:
+            givenSubmissionMultiMetaDataReturns(status, withHeaders)
+            whenReady(request.post(validRequestBody), timeout(Span(20, Seconds))): result =>
+              result.status        shouldBe OK
+              result.body.toString shouldBe empty withClue s" status: $status"
+
+        // NOT_FOUND returns JsArray.empty, see CoreHttpReads.responseHandler
+        s"the request has $headersLabel and the submission bundles request returns the status NOT_FOUND" in:
+          givenSubmissionMultiMetaDataReturns(NOT_FOUND, withHeaders)
+          whenReady(request.post(validRequestBody), timeout(Span(20, Seconds))): result =>
+            result.status        shouldBe OK
+            result.body.toString shouldBe "[ ]" withClue s" status: $status"
+
+        s"the request has $headersLabel and the submit request returns a 3xx status" in:
+          givenRequestMultiRedirects(post(urlPathMatching(retrievalPath)), withHeaders)
+          whenReady(request.post(validRequestBody), timeout(Span(20, Seconds))): result =>
+            result.status        shouldBe OK
+            result.body.toString shouldBe empty
+
+      "pass through the X-API-Key header if set and return INTERNAL_SERVER_ERROR" when:
+        Seq(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN).foreach: status =>
+          s"the request has $headersLabel and the submit request returns a 4xx status $status" in:
+            givenSubmissionMultiMetaDataReturns(status, withHeaders)
+            whenReady(request.post(validRequestBody), timeout(Span(20, Seconds))): result =>
+              result.status      shouldBe INTERNAL_SERVER_ERROR
+              result.body.toString should include(""""statusCode":500""")
+
+      "pass through the X-API-Key header if set and return BAD_GATEWAY" when:
+        s"the request has $headersLabel and the submit request returns a 5xx status" in:
+          givenSubmissionMultiMetaDataReturns(INTERNAL_SERVER_ERROR, withHeaders)
+          whenReady(request.post(validRequestBody), timeout(Span(20, Seconds))): result =>
+            result.status      shouldBe BAD_GATEWAY
+            result.body.toString should include(""""statusCode":502""")
+    }

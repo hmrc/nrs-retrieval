@@ -4,6 +4,7 @@ GET        /submission-metadata                                          @uk.gov
 POST       /submission-bundles/:vaultId/:archiveId/retrieval-requests    @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.submitRetrievalRequest(vaultId, archiveId)
 HEAD       /submission-bundles/:vaultId/:archiveId                       @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.statusSubmissionBundle(vaultId, archiveId)
 GET        /submission-bundles/:vaultId/:archiveId                       @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.getSubmissionBundle(vaultId, archiveId)
+POST       /metadata/searches                                            @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.multiMetadataSearch()
 
 GET        /submission/ping                                              @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.submissionPing
 GET        /retrieval/ping                                               @uk.gov.hmrc.nrs.retrieval.controllers.NonrepRetrievalController.retrievalPing

@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.nrs.retrieval.controllers
 
+import org.apache.pekko.actor.ActorSystem
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.when
-import play.api.http.Status
+import play.api.http.{HeaderNames, Status}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers.defaultAwaitTimeout
-import play.api.test.{FakeRequest, Helpers, StubControllerComponentsFactory}
+import play.api.test.{FakeHeaders, FakeRequest, Helpers, StubControllerComponentsFactory}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.nrs.retrieval.UnitSpec
 import uk.gov.hmrc.nrs.retrieval.connectors.NonrepRetrievalConnector
@@ -30,6 +31,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class NonrepRetrievalControllerControllerSpec extends UnitSpec, StubControllerComponentsFactory:
+  given actorSystem: ActorSystem = ActorSystem()
+
   private val fakeRequest      = FakeRequest("GET", "/")
   private val httpResponseBody = "someResponse"
 
@@ -50,6 +53,19 @@ class NonrepRetrievalControllerControllerSpec extends UnitSpec, StubControllerCo
   "search" should:
     "pass-through the search response" in:
       val result = controller.search()(fakeRequest)
+      Helpers.status(result) shouldBe OK
+
+  "multiMetaSearch" should:
+    "pass-through the search response" in:
+      when(mocKConnector.multiMetadataSearch(any())(using any[HeaderCarrier])).thenReturn(Future.successful(mockHttpResponse))
+
+      val fakeMultiSearchRequest = FakeRequest(
+        "POST",
+        "/metadata/searches",
+        FakeHeaders(Seq(HeaderNames.HOST -> "localhost")),
+        "{}"
+      )
+      val result                 = controller.multiMetadataSearch()(fakeMultiSearchRequest)
       Helpers.status(result) shouldBe OK
 
   "submitRetrievalRequest" should:
