@@ -115,4 +115,4 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
       .execute[HttpResponse]
 
   private def allHeaders(using hc: HeaderCarrier) =
-     hc.headers(explicitlyIncludedHeaders) ++  hc.extraHeaders  ++  hc.otherHeaders
+     hc.headers(explicitlyIncludedHeaders) ++ hc.extraHeaders ++ hc.otherHeaders
