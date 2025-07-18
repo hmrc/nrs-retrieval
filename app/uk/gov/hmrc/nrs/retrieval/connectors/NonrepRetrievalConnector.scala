@@ -107,10 +107,11 @@ class NonrepRetrievalConnector @Inject() (val httpClientV2: HttpClientV2)(using
   def multiMetadataSearch(body: ByteString)(using HeaderCarrier): Future[HttpResponse] =
     val path = s"${appConfig.nonrepRetrievalUrl}/retrieval/metadata/searches"
     logger.info(s"Post $path")
+    logger.info(s"multiMetadataSearch.allHeaders $allHeaders")
     httpClientV2
       .post(url"$path")
       .withBody(body)
-      .setHeader(allHeaders*)
+      .setHeader(allHeaders.filter( _._1 ==  "X-API-Key" )  *)
       .execute[HttpResponse]
 
   private def allHeaders(using hc: HeaderCarrier) =
