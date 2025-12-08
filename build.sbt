@@ -4,9 +4,11 @@ import play.core.PlayVersion.current
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
+    //    ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;com.*;.*models.*",
+
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;modgiels/.data/..*;" +
       "uk.gov.hmrc.taxhistory.auditable;uk.gov.hmrc.taxhistory.metrics;view.*;controllers.auth.*;filters.*;forms.*;config.*;" +
-      ".*BuildInfo.*;prod.Routes;app.Routes;testOnlyDoNotUseInAppConf.Routes;controllers.ExampleController;controllers.testonly.TestOnlyController",
+      ".*BuildInfo.*;prod.Routes;prod.RoutesPrefix;app.Routes;app.RoutesPrefix;testOnlyDoNotUseInAppConf.Routes;testOnlyDoNotUseInAppConf.RoutesPrefix;controllers.ExampleController;controllers.testonly.TestOnlyController",
     ScoverageKeys.coverageMinimumStmtTotal := 70.00,
     ScoverageKeys.coverageHighlighting := true,
     Test / parallelExecution := false
