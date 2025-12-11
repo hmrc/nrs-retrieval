@@ -6,14 +6,14 @@ lazy val scoverageSettings = {
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;.*AuthService.*;modgiels/.data/..*;" +
       "uk.gov.hmrc.taxhistory.auditable;uk.gov.hmrc.taxhistory.metrics;view.*;controllers.auth.*;filters.*;forms.*;config.*;" +
-      ".*BuildInfo.*;prod.Routes;app.Routes;testOnlyDoNotUseInAppConf.Routes;controllers.ExampleController;controllers.testonly.TestOnlyController",
+      ".*BuildInfo.*;prod.Routes;prod.RoutesPrefix;app.Routes;app.RoutesPrefix;testOnlyDoNotUseInAppConf.Routes;testOnlyDoNotUseInAppConf.RoutesPrefix;controllers.ExampleController;controllers.testonly.TestOnlyController",
     ScoverageKeys.coverageMinimumStmtTotal := 70.00,
     ScoverageKeys.coverageHighlighting := true,
     Test / parallelExecution := false
   )
 }
 
-val bootstrapPlayVersion = "9.14.0"
+val bootstrapPlayVersion = "9.19.0"
 val currentScalaVersion = "3.3.5"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test()
 lazy val appDependenciesIt: Seq[ModuleID] = it()
