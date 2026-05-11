@@ -13,7 +13,7 @@ lazy val scoverageSettings = {
   )
 }
 
-val bootstrapPlayVersion = "9.19.0"
+val bootstrapPlayVersion = "10.7.0"
 val currentScalaVersion = "3.3.5"
 lazy val appDependencies: Seq[ModuleID] = compile ++ test()
 lazy val appDependenciesIt: Seq[ModuleID] = it()
